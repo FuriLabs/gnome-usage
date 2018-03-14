@@ -1,4 +1,66 @@
-3.27.90 - Feb 08, 2017
+3.28.0 - Mar 12, 2018
+=====================
+
+  - Consume AccountsService data over DBus
+  - Added/updated/fixed translations:
+    - Hungarian
+    - Swedish
+    - French
+    - Friulian
+    - Italian
+
+Dependencies changed:
+
+ - accountsservice (dropped)
+
+All contributors to this release:
+
+Alexandre Franke <afranke@gnome.org>
+Anders Jonsson <anders.jonsson@norsjovallen.se>
+Balázs Úr <balazs@urbalazs.hu>
+Fabio Tomat <f.t.public@gmail.com>
+Felipe Borges <felipeborges@gnome.org>
+Gianvito Cavasoli <gianvito@gmx.it>
+Julien Hardelin <jhardlin@orange.fr>
+
+3.27.92 - Mar 04, 2018
+======================
+
+  - Add categories to desktop file
+  - Fix flatpak manifest file URLs
+  - Added/updated/fixed translations:
+    - Polish
+    - Galician
+    - Indonesian
+    - Serbian
+    - Serbian Latin
+    - Croatian
+    - Brazilian Portuguese
+    - Czech
+    - Spanish
+    - German
+    - Catalan
+    - Dutch
+    - Finish
+
+All contributors to this release:
+
+Andika Triwidada <atriwidada@gnome.org>
+Daniel Mustieles <daniel.mustieles.contractor@bbva.com>
+Enrico Nicoletto <liverig@gmail.com>
+Felipe Borges <felipeborges@gnome.org>
+Fran Dieguez <frandieguez@gnome.org>
+gogo <trebelnik2@gmail.com>
+Jeremy Bicha <jbicha@ubuntu.com>
+Jiri Grönroos <jiri.gronroos@iki.fi>
+Jordi Mas <jmas@softcatala.org>
+Милош Поповић <gpopac@gmail.com>
+Марко Костић <marko.m.kostic@gmail.com>
+Marek Cernocky <marek_cernocky@conel.cz>
+Mario Blättermann <mario.blaettermann@gmail.com>
+Piotr Drąg <piotrdrag@gmail.com>
+
+3.27.90 - Feb 08, 2018
 ======================
 
 This is the first public GNOME Usage release which
