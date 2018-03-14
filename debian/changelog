@@ -1,6 +1,7 @@
 gnome-usage (3.28.0-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Drop obsolete Build-Depends on libaccountsservice-dev
 
  -- Jeremy Bicha <jbicha@debian.org>  Wed, 14 Mar 2018 19:21:35 -0400
 
