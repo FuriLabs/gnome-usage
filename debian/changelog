@@ -1,3 +1,13 @@
+gnome-usage (3.28.0-2) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * debian/watch: Only watch for stable releases
+
+  [ Andreas Henriksson ]
+  * Add 0001-Fix-build-with-vala-0.42.patch (Closes: #907934)
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 08 Sep 2018 00:14:17 +0200
+
 gnome-usage (3.28.0-1) unstable; urgency=medium
 
   * New upstream release
