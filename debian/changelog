@@ -1,8 +1,10 @@
-gnome-usage (3.30.0-1) UNRELEASED; urgency=medium
+gnome-usage (3.30.0-1) unstable; urgency=medium
 
   * New upstream release
+  * Drop 0001-Fix-build-with-vala-0.42.patch: Applied in new release
+  * Bump Standards-Version to 4.2.1
 
- -- Jeremy Bicha <jbicha@debian.org>  Tue, 25 Sep 2018 09:52:30 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Tue, 25 Sep 2018 10:10:35 -0400
 
 gnome-usage (3.28.0-2) unstable; urgency=medium
 
