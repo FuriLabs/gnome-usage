@@ -10,13 +10,11 @@ list separator {
 }
 
 list row.max {
-    background: #fabbbb;
-    border: 1px solid #faa5a2;
+    background: alpha(@error_color, 0.3);
 }
 
 list row.max:hover {
-    background: #faa5a2;
-    border: 1px solid #faa5a2;
+    background: alpha(@error_color, 0.4);
 }
 
 list row.opened {
@@ -46,29 +44,14 @@ subprocess-list row.max:hover {
     border: 1px solid #faa5a2;
 }
 
-graph-switcher-button {
-    padding: 6px 10px;
+button.graph-switcher {
     border-style: none;
     border-radius: 0;
 }
 
-graph-switcher-button:hover {
-    background-color: @theme_base_color;
-}
-
-graph-switcher-button:checked {
-    background-color: alpha(@theme_fg_color, 0.2);
-}
-
-graph-switcher-button:active {
-    background-color: alpha(@theme_fg_color, 0.2);
-    box-shadow: inset 0 2px 2px -2px rgba(0, 0, 0, 0.2);
-}
-
 rg-graph.big {
-    background-color: #ffffff;
     background-size: 57px 57px;
-    background-image: repeating-linear-gradient(0deg, #e6e6e6, #e6e6e6 1px, transparent 1px, transparent 57px);
+    background-image: repeating-linear-gradient(0deg, alpha(@theme_fg_color, 0.2), alpha(@theme_fg_color, 0.2) 1px, transparent 1px, transparent 57px);
 }
 
 rg-graph.line {

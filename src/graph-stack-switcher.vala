@@ -22,63 +22,70 @@ namespace Usage
 {
     public class GraphStackSwitcher : Gtk.Box
     {
-        Gtk.Stack stack;
         View[] sub_views;
+        AnimatedScrolledWindow scrolled_window;
 
-        Gtk.ToggleButton[] buttons;
+        GraphSwitcherButton[] buttons;
 
-        bool can_change = true;
+        class construct
+        {
+            set_css_name("graph-stack-switcher");
+        }
 
-		public GraphStackSwitcher(Gtk.Stack stack, View[] sub_views)
-		{
+        public GraphStackSwitcher(AnimatedScrolledWindow scrolled_window, View[] sub_views)
+        {
             Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
 
-            this.stack = stack;
             this.sub_views = sub_views;
+            this.scrolled_window = scrolled_window;
+
+            scrolled_window.scroll_changed.connect(on_scroll_changed);
 
             buttons = {
                 new GraphSwitcherButton.processor(_("Processor")),
                 new GraphSwitcherButton.memory(_("Memory"))
             };
 
-    	    foreach(Gtk.ToggleButton button in buttons)
+            foreach(GraphSwitcherButton button in buttons)
             {
                 this.pack_start(button, false, true, 0);
-            }
 
-    	    buttons[0].set_active (true);
+                button.button_release_event.connect(() => {
+                    var button_number = get_button_number(button);
+                    scroll_to_view(button_number);
 
-            foreach(Gtk.ToggleButton button in buttons)
-            {
-                button.toggled.connect (() => {
-                    if(can_change)
-                    {
-                        if (button.active)
-                        {
-                            can_change = false;
-
-                            int i = 0;
-                            int button_number = 0;
-                            foreach(Gtk.ToggleButton btn in buttons)
-                            {
-                                if(btn != button)
-                                    btn.active = false;
-                                else
-                                    button_number = i;
-                                i++;
-                            }
-                            this.stack.set_visible_child_name(this.sub_views[button_number].name);
-
-                            can_change = true;
-                        } else
-                        {
-                            can_change = false;
-                            button.active = true;
-                            can_change = true;
-                        }
-                    }
+                    return false;
                 });
             }
+        }
+
+        private int get_button_number(Gtk.Button button)
+        {
+            for(int i = 0; i < buttons.length; i++)
+            {
+                if(buttons[i] == button)
+                    return i;
+            }
+
+            return 0;
+        }
+
+        private void scroll_to_view(int button_number)
+        {
+            Gtk.Allocation alloc;
+
+            this.sub_views[button_number].get_allocation(out alloc);
+            scrolled_window.animated_scroll_vertically(alloc.y);
+        }
+
+        private void on_scroll_changed(double y)
+        {
+            Gtk.Allocation alloc;
+
+            this.sub_views[1].get_allocation(out alloc);
+            var button_number = (y < alloc.y) ? 0 : 1;
+
+            buttons[button_number].set_active(true);
         }
     }
 }
