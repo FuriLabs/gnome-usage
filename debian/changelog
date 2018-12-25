@@ -1,3 +1,11 @@
+gnome-usage (3.30.0-2) unstable; urgency=medium
+
+  * Build-Depend on debhelper-compat 12 and drop debian/compat
+  * Add -Wl,-O1 to our LDFLAGS
+  * Bump Standards-Version to 4.3.0
+
+ -- Jeremy Bicha <jbicha@debian.org>  Tue, 25 Dec 2018 17:04:41 -0500
+
 gnome-usage (3.30.0-1) unstable; urgency=medium
 
   * New upstream release
