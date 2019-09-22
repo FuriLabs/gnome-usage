@@ -34,7 +34,7 @@ namespace Usage
             label.margin_top = 25;
             label.margin_bottom = 15;
 
-            var cpu_graph = new CpuGraphBig();
+            var cpu_graph = new CpuGraph();
             cpu_graph.hexpand = true;
             var cpu_graph_box = new GraphBox(cpu_graph);
             cpu_graph_box.height_request = 225;
@@ -48,7 +48,7 @@ namespace Usage
             var spinner = new Gtk.Spinner();
             spinner.active = true;
             spinner.margin_top = 30;
-            spinner.margin_bottom = 20;
+            spinner.height_request = 250;
 
             no_process_view = new NoResultsFoundView();
 
@@ -59,11 +59,16 @@ namespace Usage
             cpu_box.pack_start(spinner, true, true, 0);
             cpu_box.add(no_process_view);
 
-            SystemMonitor.get_default().cpu_processes_ready.connect(() =>
-            {
-                cpu_box.pack_start(process_list_box, false, false, 0);
-                process_list_box.update();
-                cpu_box.remove(spinner);
+            var system_monitor = SystemMonitor.get_default();
+            system_monitor.notify["process-list-ready"].connect ((sender, property) => {
+                if(system_monitor.process_list_ready) {
+                    cpu_box.pack_start(process_list_box, false, false, 0);
+                    cpu_box.remove(spinner);
+                }
+                else {
+                    cpu_box.pack_start(spinner, true, true, 0);
+                    cpu_box.remove(process_list_box);
+                }
             });
 
             process_list_box.bind_property ("empty", no_process_view, "visible", BindingFlags.BIDIRECTIONAL);
@@ -78,7 +83,7 @@ namespace Usage
 
         public void search_in_processes(string text)
         {
-            process_list_box.search(text);
+            process_list_box.search_text = text;
         }
     }
 }

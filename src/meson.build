@@ -1,19 +1,19 @@
 vala_sources = [
   'animated-scrolled-window.vala',
+  'app-item.vala',
   'application.vala',
   'color-rectangle.vala',
-  'cpu-graph-table.vala',
+  'cpu-graph-model.vala',
   'cpu-graph.vala',
   'cpu-monitor.vala',
   'cpu-sub-view.vala',
   'gnome-usage.vala',
-  'graph-block-row.vala',
-  'graph-block.vala',
   'graph-box.vala',
+  'graph-stacked-renderer.vala',
   'graph-stack-switcher.vala',
   'graph-switcher-button.vala',
   'header-bar.vala',
-  'memory-graph-table.vala',
+  'memory-graph-model.vala',
   'memory-graph.vala',
   'memory-monitor.vala',
   'memory-speedometer.vala',
@@ -22,6 +22,7 @@ vala_sources = [
   'no-results-found-view.vala',
   'performance-view.vala',
   'pie-chart.vala',
+  'primary-menu.vala',
   'process-list-box.vala',
   'process-row.vala',
   'process.vala',
@@ -48,14 +49,11 @@ deps = [
   glib_dep,
   gobject_dep,
   gtk_dep,
-  libegg_dep,
-  librg_dep,
   dependency('libgtop-2.0', version : '>= 2.34.0'),
+  libdazzle_dep,
   cc.find_library('m'),
   valac.find_library('config', dirs: vapi_dir),
-  valac.find_library('egg', dirs: vapi_dir),
-  valac.find_library('posix'),
-  valac.find_library('rg', dirs: vapi_dir)
+  valac.find_library('posix')
 ]
 
 c_args = [

@@ -30,7 +30,8 @@ namespace Usage
         {
           { "about", on_about },
           { "search", on_search },
-          { "quit", on_quit }
+          { "quit", on_quit },
+          { "filter-processes", on_activate_radio, "s", "'group-system'", change_filter_processes_state }
         };
 
         public Application ()
@@ -50,21 +51,8 @@ namespace Usage
 
             window = new Window(this);
 
-            // Create menu
-            GLib.Menu menu_preferences = new GLib.Menu();
-            GLib.Menu menu_common = new GLib.Menu();
-            var item = new GLib.MenuItem (_("About"), "app.about");
-            menu_common.append_item(item);
+            set_accels_for_action("app.quit", {"<Primary>q"});
 
-            item = new GLib.MenuItem (_("Quit"), "app.quit");
-            item.set_attribute("accel", "s", "<Primary>q");
-            menu_common.append_item(item);
-
-            GLib.Menu menu = new GLib.Menu();
-            menu.append_section(null, menu_preferences);
-            menu.append_section(null, menu_common);
-
-            set_app_menu(menu);
             window.show_all();
         }
 
@@ -107,6 +95,17 @@ namespace Usage
         private void on_search(GLib.SimpleAction action, GLib.Variant? parameter)
         {
             window.get_header_bar().action_on_search();
+        }
+
+        private void on_activate_radio (GLib.SimpleAction action, GLib.Variant? state)
+        {
+            action.change_state(state);
+        }
+
+        private void change_filter_processes_state(GLib.SimpleAction action, GLib.Variant? state)
+        {
+            action.set_state(state);
+            SystemMonitor.get_default().group_system_apps = state.get_string() == "group-system" ? true : false;
         }
     }
 }
