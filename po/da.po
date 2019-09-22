@@ -1,52 +1,48 @@
-# Galician translation for gnome-usage.
-# Copyright (C) 2018 gnome-usage's COPYRIGHT HOLDER
+# Danish translation for gnome-usage.
+# Copyright (C) 2019 gnome-usage's COPYRIGHT HOLDER
 # This file is distributed under the same license as the gnome-usage package.
-# Fran Dieguez <frandieguez@gnome.org>, 2018-2019.
-#
+# scootergrisen, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-usage master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-usage/issues\n"
-"POT-Creation-Date: 2019-01-03 18:03+0000\n"
-"PO-Revision-Date: 2019-01-29 01:09+0100\n"
-"Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galician <proxecto@trasno.gal>\n"
-"Language: gl\n"
+"POT-Creation-Date: 2019-01-29 00:10+0000\n"
+"PO-Revision-Date: 2019-02-19 00:00+0200\n"
+"Last-Translator: scootergrisen\n"
+"Language-Team: Danish\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 3.30.0\n"
-"X-Project-Style: gnome\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: data/org.gnome.Usage.appdata.xml.in:5
 msgid "GNOME Usage"
-msgstr "Uso de GNOME"
+msgstr "GNOME Forbrug"
 
 #: data/org.gnome.Usage.appdata.xml.in:6
 msgid "A nice way to view information about use of system resources"
-msgstr ""
-"Unha forma sinxela de ver información sobre o uso dos recursos do sistema"
+msgstr "En fin måde til at vise information om forbruget af systemressourcer"
 
 #: data/org.gnome.Usage.appdata.xml.in:8
 msgid ""
 "A simple GNOME 3 application to monitor and analyze system resources such as "
 "processing, memory, and storage."
 msgstr ""
-"Un aplicativo de GNOME 3 sinxelo para monitorizar e analizar os recursos do "
-"sistema como o procesamento, memoria e almacenamento."
+"Et simpelt GNOME 3-program til at overvåge og analysere systemressourcer "
+"såsom processor, hukommelse og lager."
 
 #: data/org.gnome.Usage.desktop.in:3 src/application.vala:79 src/window.vala:41
 msgid "Usage"
-msgstr "Uso"
+msgstr "Forbrug"
 
 #: data/org.gnome.Usage.desktop.in:4
 msgid ""
 "A nice way to view information about use of system resources, like memory "
 "and disk space"
 msgstr ""
-"Unha forma sinxela de ver información sobre o uso dos recursos do sistema, "
-"como a memoria e o espazo en disco"
+"En fin måde til at vise information om forbruget af systemressourcer såsom "
+"hukommelse og diskplads"
 
 #. Translators: Do NOT translate or transliterate this text (this is an icon file name)!
 #: data/org.gnome.Usage.desktop.in:8
@@ -59,22 +55,22 @@ msgid ""
 "Monitor;System;Process;CPU;Memory;Network;History;Usage;Performance;Task;"
 "Manager;"
 msgstr ""
-"Monitor;Sistema;Procesos;CPU;Memoria;Rede;Historial;Uso;Rendemento;Tarefas;"
-"Xestor;"
+"Overvåg;System;Processor;CPU;Hukommelse;Netværk;Historik;Forbrug;Ydelse;Opga"
+"ve;Håndtering;"
 
 #: data/org.gnome.Usage.gschema.xml:5
 msgid "A list of processes which we don’t want killed"
-msgstr "Unha lista de procesos que non queremos matar"
+msgstr "En liste over processer som ikke skal dræbes"
 
 #: data/org.gnome.Usage.gschema.xml:6
 msgid "This list is used for filtering which processes the user can’t stop."
 msgstr ""
-"Esta lista úsase para filtrar os procesos que o usuario non pode deter."
+"Listen bruges til at filtrere hvilke processer brugeren ikke kan stoppe."
 
 #: data/ui/header-bar.ui:87 data/ui/quit-process-dialog.ui:16
 #: src/storage-actionbar.vala:90 src/storage-row.vala:393
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Annullér"
 
 #: data/ui/memory-speedometer.ui:38
 msgid "RAM"
@@ -82,236 +78,219 @@ msgstr "RAM"
 
 #: data/ui/memory-speedometer.ui:53 data/ui/swap-speedometer.ui:51
 msgid "Used"
-msgstr "Usado"
+msgstr "Anvendt"
 
 #: data/ui/memory-speedometer.ui:77 data/ui/swap-speedometer.ui:75
 #: src/storage-item.vala:140
 msgid "Available"
-msgstr "Dispoñíbel"
+msgstr "Tilgængelig"
 
 #: data/ui/no-results-found-view.ui:23
 msgid "No results found"
-msgstr "Non se atoparon resultados"
+msgstr "Fandt ingen resultater"
 
 #: data/ui/no-results-found-view.ui:32
 msgid "Try a different search"
-msgstr "Probe unha busca diferente"
+msgstr "Prøv en anden søgning"
 
 #: data/ui/primary-menu.ui:14
 msgid "_About Usage"
-msgstr "_Sobre Uso"
+msgstr "_Om Forbrug"
 
 #: data/ui/primary-menu.ui:29
 msgid "Group system processes"
-msgstr "Grupo dos procesos do sistema"
+msgstr "Gruppér systemressourcer"
 
 #: data/ui/primary-menu.ui:37
 msgid "Show all processes"
-msgstr "Mostrar todos os procesos"
+msgstr "Vis alle processer"
 
 #. Translators: This sentence is later suffixed with an application name. Example: “Force Quit Videos?”
 #: data/ui/quit-process-dialog.ui:9
 msgid "Force Quit %s?"
-msgstr "Forzar a saída de %s?"
+msgstr "Tving %s til at afslutte?"
 
 #: data/ui/quit-process-dialog.ui:10
 msgid "Unsaved work might be lost."
-msgstr "O traballo sen gardar perderase."
+msgstr "Arbejde, der ikke er gemt, kan gå tabt."
 
 #: data/ui/quit-process-dialog.ui:24
 msgid "Force Quit"
-msgstr "Forzar a saída"
+msgstr "Tving afslutning"
 
 #: data/ui/storage-actionbar.ui:9 src/storage-row.vala:274
 msgid "Move to"
-msgstr "Mover a"
+msgstr "Flyt til"
 
 #: data/ui/storage-actionbar.ui:18 src/storage-row.vala:278
 msgid "Delete"
-msgstr "Eliminar"
+msgstr "Slet"
 
 #: data/ui/storage-actionbar.ui:33 src/storage-row.vala:277
 msgid "Move to Trash"
-msgstr "Mover ao lixo"
+msgstr "Flyt til papirkurv"
 
 #: data/ui/storage-actionbar.ui:45
 msgid "Empty folder"
-msgstr "Cartafol baleiro"
+msgstr "Tøm mappe"
 
 #: data/ui/storage-actionbar.ui:57 src/storage-row.vala:263
 msgid "Restore"
-msgstr "Restaurar"
+msgstr "Gendan"
 
 #: data/ui/storage-actionbar.ui:66 src/storage-row.vala:266
 msgid "Delete from Trash"
-msgstr "Eliminar do lixo"
+msgstr "Slet fra papirkurv"
 
 #: data/ui/storage-view.ui:63
 msgid "No content here"
-msgstr "Non hai contidos aquí"
+msgstr "Her er ikke noget indhold"
 
 #: data/ui/swap-speedometer.ui:36
 msgid "Swap"
-msgstr "Intercambio"
+msgstr "Swap"
 
 #: src/app-item.vala:43
 msgid "System"
-msgstr "Sistema"
+msgstr "System"
 
 #: src/application.vala:80
 msgid ""
 "A nice way to view information about use of system resources, like memory "
 "and disk space."
 msgstr ""
-"Unha forma sinxela de ver información sobre o uso dos recursos do sistema, "
-"como a memoria e o espazo en disco."
+"En fin måde til at vise information om forbruget af systemressourcer såsom "
+"hukommelse og diskplads."
 
 #: src/application.vala:83
 msgid "translator-credits"
-msgstr "Fran Dieguez <frandieguez@gnome.org>, 2018."
+msgstr "scootergrisen"
 
 #: src/application.vala:85
 msgid "Websites"
-msgstr "Sitios web"
+msgstr "Websteder"
 
 #: src/cpu-sub-view.vala:32 src/graph-stack-switcher.vala:45
 msgid "Processor"
-msgstr "Procesador"
+msgstr "Processor"
 
 #: src/graph-stack-switcher.vala:46
 msgid "Memory"
-msgstr "Memoria"
+msgstr "Hukommelse"
 
 #: src/header-bar.vala:149
 #, c-format
 msgid "%u selected"
 msgid_plural "%u selected"
-msgstr[0] "%u seleccionado"
-msgstr[1] "%u seleccionados"
+msgstr[0] "%u valgt"
+msgstr[1] "%u valgt"
 
 #: src/header-bar.vala:151
 msgid "Click on items to select them"
-msgstr "Prema nos elementos para seleccionalos"
+msgstr "Klik på elementerne for at vælge dem"
 
 #: src/header-bar.vala:215
 msgid "Select all"
-msgstr "Seleccionar todos"
+msgstr "Vælg alle"
 
 #: src/header-bar.vala:219
 msgid "Select None"
-msgstr "Deseleccionar todos"
+msgstr "Vælg ingen"
 
 #: src/performance-view.vala:48
 msgid "Performance"
-msgstr "Rendemento"
+msgstr "Ydelse"
 
 #: src/storage-actionbar.vala:89 src/storage-row.vala:392
 msgid "Select destination folder"
-msgstr "Seleccionar o cartafol de destino"
+msgstr "Vælg destinationsmappe"
 
 #: src/storage-actionbar.vala:92 src/storage-row.vala:395
 msgid "Select"
-msgstr "Seleccionar"
+msgstr "Vælg"
 
 #. Translators: %s is the name of the file to be deleted.
 #: src/storage-actionbar.vala:144
 #, c-format
-#| msgid "Are you sure you want to permanently delete %s?"
 msgid "Are you sure you want to permanently delete “%s”?"
-msgstr "Está seguro que quere eliminar de forma permanente «%s»?"
+msgstr "Er du sikker på, at du vil slette “%s” permanent?"
 
 #. Translators: %d is the number of files to be deleted.
 #: src/storage-actionbar.vala:148
 #, c-format
-#| msgid "Are you sure you want to permanently delete this items %s?"
 msgid "Are you sure you want to permanently delete the %d selected item?"
 msgid_plural ""
 "Are you sure you want to permanently delete the %d selected items?"
-msgstr[0] ""
-"Ten certeza que quere eliminar de forma permanente %d elemento seleccionado?"
-msgstr[1] ""
-"Ten certeza que quere eliminar de forma permanente %d elementos "
-"seleccionados?"
+msgstr[0] "Er du sikker på, at du vil slette det valgte element permanent?"
+msgstr[1] "Er du sikker på, at du vil slette de %d valgte elementer permanent?"
 
 #: src/storage-actionbar.vala:152
 msgid "If you delete these items, they will be permanently lost."
-msgstr "Se elimina estos elementos, perderánse de forma permanente."
+msgstr "Hvis du sletter elementerne, så går de tabt permanent."
 
 #: src/storage-actionbar.vala:203 src/storage-row.vala:342
 msgid "Empty all items from Trash?"
-msgstr "Desea baleirar todos os elementos do Lixo?"
+msgstr "Tøm alle elementerne fra papirkurven?"
 
 #: src/storage-actionbar.vala:204 src/storage-row.vala:343
 msgid "All items in the Trash will be permanently deleted."
-msgstr "Eliminaranse todos os elementos do Lixo de forma permanente."
+msgstr "Alle elementerne i papirkurven vil blive slettet permanent."
 
 #: src/storage-actionbar.vala:225 src/storage-row.vala:322
 #, c-format
 msgid "Empty all items from %s?"
-msgstr "Baleirar todos os elementos de %s?"
+msgstr "Tøm alle elementerne fra %s?"
 
 #: src/storage-actionbar.vala:226 src/storage-row.vala:323
 #, c-format
 msgid "All items in the %s will be moved to the Trash."
-msgstr "Moveranse ao lixo todos os elementos de %s."
+msgstr "Alle elementerne i %s flyttes til papirkurven."
 
 #: src/storage-analyzer.vala:94
 msgid "Storage 1"
-msgstr "Almacenamento 1"
+msgstr "Lager 1"
 
 #: src/storage-analyzer.vala:98
 msgid "Storage 2"
-msgstr "Almacenamento 2"
+msgstr "Lager 2"
 
 #: src/storage-analyzer.vala:105
 msgid "Capacity"
-msgstr "Capacidade"
+msgstr "Kapacitet"
 
 #: src/storage-analyzer.vala:647
 msgid "Home"
-msgstr "Cartafol persoal"
+msgstr "Hjem"
 
 #: src/storage-item.vala:104
 msgid "Trash"
-msgstr "Lixo"
+msgstr "Papirkurv"
 
 #: src/storage-item.vala:128
 msgid "Operating System"
-msgstr "Sistema operativo"
+msgstr "Styresystem"
 
 #: src/storage-row.vala:248
 msgid "Empty"
-msgstr "Baleirar"
+msgstr "Tøm"
 
 #: src/storage-row.vala:253
 msgid "Empty Trash"
-msgstr "Baleirar lixo"
+msgstr "Tøm papirkurv"
 
 #: src/storage-row.vala:273 src/storage-row.vala:367
 msgid "Rename"
-msgstr "Renomear"
+msgstr "Omdøb"
 
 #: src/storage-row.vala:439
 #, c-format
 msgid "Are you sure you want to permanently delete %s?"
-msgstr "Está seguro que quere eliminar de forma permanente %s?"
+msgstr "Er du sikker på, at du vil slette %s permanent?"
 
 #: src/storage-row.vala:440
 msgid "If you delete an item, it will be permanently lost."
-msgstr "Se elimina un elemento, perderáse de forma permanente."
+msgstr "Hvis du sletter et element, så går det tabt permanent."
 
 #: src/storage-view.vala:45
 msgid "Storage"
-msgstr "Almacenamento"
-
-#~ msgid "About"
-#~ msgstr "Sobre"
-
-#~ msgid "Quit"
-#~ msgstr "Saír"
-
-#~ msgid "Others"
-#~ msgstr "Outros"
-
-#~ msgid "Move to trash"
-#~ msgstr "Mover ao lixo"
+msgstr "Lager"
