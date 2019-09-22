@@ -1,3 +1,9 @@
+gnome-usage (3.32.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 22 Sep 2019 19:38:38 -0400
+
 gnome-usage (3.30.0-2) unstable; urgency=medium
 
   * Build-Depend on debhelper-compat 12 and drop debian/compat
