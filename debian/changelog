@@ -1,8 +1,12 @@
-gnome-usage (3.32.0-1) UNRELEASED; urgency=medium
+gnome-usage (3.32.0-1) unstable; urgency=medium
 
   * New upstream release
+  * Update debian/copyright
+  * Build-Depend on libdazzle-1.0-dev
+  * Build-Depend on dh-sequence-gnome instead of gnome-pkg-tools
+  * Bump Standards-Version to 4.4.0
 
- -- Jeremy Bicha <jbicha@debian.org>  Sun, 22 Sep 2019 19:38:38 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 22 Sep 2019 19:45:47 -0400
 
 gnome-usage (3.30.0-2) unstable; urgency=medium
 
