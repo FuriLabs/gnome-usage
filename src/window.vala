@@ -1,6 +1,7 @@
 /* window.vala
  *
  * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2020 Adrien Plazas <kekun.plazas@laposte.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,19 +27,42 @@ namespace Usage
         STORAGE,
     }
 
-    public class Window : Gtk.ApplicationWindow
+    public enum HeaderBarMode
     {
-        private Usage.HeaderBar header_bar;
+        PERFORMANCE,
+        STORAGE,
+    }
+
+    [GtkTemplate (ui = "/org/gnome/Usage/ui/window.ui")]
+    public class Window : Hdy.ApplicationWindow
+    {
+        [GtkChild]
+        private Gtk.Stack stack;
+
+        [GtkChild]
+        private Gtk.Revealer performance_search_revealer;
+
+        [GtkChild]
+        private Gtk.ToggleButton performance_search_button;
+
+        [GtkChild]
+        private Gtk.MenuButton primary_menu_button;
+
+        private HeaderBarMode mode;
+        private Usage.PrimaryMenu menu;
+
+        [GtkChild]
+        private Hdy.ViewSwitcherBar view_switcher_bar;
+
         private View[] views;
 
 		public Window(Gtk.Application application)
         {
             GLib.Object(application : application);
 
-            this.set_default_size(950, 600);
-            this.set_size_request(930, 300);
-            this.window_position = Gtk.WindowPosition.CENTER;
-            this.set_title(_("Usage"));
+            if(Config.PROFILE == "Devel") {
+                get_style_context().add_class("devel");
+            }
 
             load_css();
             Gtk.Settings.get_for_screen(get_screen()).notify["gtk-application-prefer-dark-theme"].connect(() =>
@@ -46,9 +70,11 @@ namespace Usage
                 load_css();
             });
 
-			var stack = new Gtk.Stack();
-			header_bar = new Usage.HeaderBar(stack);
-			set_titlebar(header_bar);
+            mode = HeaderBarMode.PERFORMANCE;
+            menu = new Usage.PrimaryMenu();
+            this.primary_menu_button.set_popover(menu);
+
+            set_mode(HeaderBarMode.PERFORMANCE);
 
             views = new View[]
             {
@@ -56,27 +82,45 @@ namespace Usage
                 new StorageView(),
             };
 
-            foreach(var view in views)
+            foreach(var view in views) {
                 stack.add_titled(view, view.name, view.title);
-
-            stack.notify.connect(() => {
-                if(stack.visible_child_name == views[Views.PERFORMANCE].name)
-                {
-                    header_bar.set_mode(HeaderBarMode.PERFORMANCE);
-                }
-                else if(stack.visible_child_name == views[Views.STORAGE].name)
-                {
-                    header_bar.set_mode(HeaderBarMode.STORAGE);
-                    StorageAnalyzer.get_default().create_cache.begin();
-                }
-            });
-
-            this.add(stack);
+                stack.child_set (view, "icon-name", view.icon_name, null);
+            }
         }
 
-        public Usage.HeaderBar get_header_bar()
+        public void set_mode(HeaderBarMode mode)
         {
-            return header_bar;
+            switch(this.mode)
+            {
+                case HeaderBarMode.PERFORMANCE:
+                    performance_search_revealer.reveal_child = false;
+                    break;
+                case HeaderBarMode.STORAGE:
+                    break;
+            }
+
+            switch(mode)
+            {
+                case HeaderBarMode.PERFORMANCE:
+                    performance_search_revealer.reveal_child = true;
+                    break;
+                case HeaderBarMode.STORAGE:
+                    break;
+            }
+            menu.mode = mode;
+            this.mode = mode;
+        }
+
+        public void action_on_search()
+        {
+            switch(mode)
+            {
+                case HeaderBarMode.PERFORMANCE:
+                    performance_search_button.set_active(!performance_search_button.get_active());
+                    break;
+                case HeaderBarMode.STORAGE:
+                    break;
+            }
         }
 
         public View[] get_views()
@@ -90,6 +134,25 @@ namespace Usage
             Gtk.StyleContext.reset_widgets(get_screen());
             provider.load_from_resource("/org/gnome/Usage/interface/adwaita.css");
             Gtk.StyleContext.add_provider_for_screen(get_screen(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        }
+
+        [GtkCallback]
+        private void on_performance_search_button_toggled () {
+            /* TODO: Implement a saner way of toggling this mode. */
+            ((PerformanceView) (GLib.Application.get_default() as Application).get_window().get_views()[Views.PERFORMANCE]).set_search_mode(performance_search_button.active);
+        }
+
+        [GtkCallback]
+        private void on_visible_child_changed()
+        {
+            if(stack.visible_child_name == views[Views.PERFORMANCE].name)
+            {
+                set_mode(HeaderBarMode.PERFORMANCE);
+            }
+            else if(stack.visible_child_name == views[Views.STORAGE].name)
+            {
+                set_mode(HeaderBarMode.STORAGE);
+            }
         }
     }
 }

@@ -9,34 +9,146 @@ namespace Usage
         public double cpu_load { get; private set; }
         public uint64 mem_usage { get; private set; }
         public Fdo.AccountsUser? user { get; private set; default = null; }
+        public bool gamemode {get; private set; }
 
         private static HashTable<string, AppInfo>? apps_info;
+        private static HashTable<string, AppInfo>? appid_map;
         private AppInfo? app_info = null;
 
         public static void init() {
-            apps_info = new HashTable<string, AppInfo>(str_hash, str_equal);
-            var _apps_info = AppInfo.get_all();
+            apps_info = new HashTable<string, AppInfo> (str_hash, str_equal);
+            appid_map = new HashTable<string, AppInfo> (str_hash, str_equal);
+
+            var _apps_info = AppInfo.get_all ();
 
             foreach (AppInfo info in _apps_info) {
-                string cmd = info.get_commandline();
-                sanity_cmd(ref cmd);
+                GLib.DesktopAppInfo? dai = info as GLib.DesktopAppInfo;
+                string ?id = null;
 
-                if(cmd != null)
-                    apps_info.insert(cmd, info);
+                if (dai != null) {
+                    id = dai.get_string ("X-Flatpak");
+                    if (id != null)
+                        appid_map.insert (id, info);
+                }
+
+                if (id == null) {
+                    id = info.get_id();
+                    if (id != null && id.has_suffix (".desktop"))
+                        id = id[0:id.length - 8];
+                    if (id != null)
+                        appid_map.insert (id, info);
+                }
+
+                string cmd = info.get_commandline ();
+
+                if (cmd == null)
+                    continue;
+
+                sanitize_cmd (ref cmd);
+                apps_info.insert (cmd, info);
             }
         }
 
-        public static bool have_app_info(string cmdline) {
-            return apps_info.get(cmdline) != null ? true : false;
+        public static string? appid_from_unit (string ?systemd_unit) {
+            string ?escaped_id = null;
+            string ?id = null;
+
+            if (systemd_unit == null)
+                return null;
+
+            /* This is gnome-launched-APPID.desktop-RAND.scope */
+            if (systemd_unit.has_prefix ("gnome-launched-")) {
+                int index = -1;
+
+                index = systemd_unit.index_of (".desktop-");
+                // This is just argv[0] name encoded, we could also decode it
+                // and look it up differently.
+                // There is no standardization though for such a scheme.
+                if (index == -1)
+                    return null;
+
+                return systemd_unit[15:index];
+            }
+
+            /* In other cases, assume compliance with spec, i.e. for
+             * .scope units we fetch the second to last dashed item,
+             * for .service units the last (as they use @ to separate
+             * any required) */
+            try {
+                string[] segments = systemd_unit.split ("-");
+
+                if (systemd_unit.has_suffix (".scope") && segments.length >= 2)
+                    escaped_id = segments[segments.length - 2];
+                else if (systemd_unit.has_suffix (".service") && segments.length >= 1) {
+                    string tmp = segments[segments.length - 1];
+                    /* Strip .service */
+                    tmp = tmp[0:tmp.length-8];
+                    /* Remove any @ element (if there) */
+                    escaped_id = tmp.split("@", 2)[0];
+                }
+            } catch (Error e) {
+                return null;
+            }
+
+            if (escaped_id == null)
+                return null;
+
+            /* Now, unescape any \xXX escapes, which should only be dashes
+             * from the reverse domain name. */
+            id = escaped_id.compress();
+            if (id == null)
+                return null;
+
+            return id;
+        }
+
+        public static AppInfo? app_info_for_process (Process p) {
+            AppInfo? info = null;
+            string ?cgroup = null;
+            Pid pid = p.pid;
+
+            cgroup = Process.read_cgroup(p.pid);
+            if (cgroup != null) {
+                /* Try to extract an application ID, this is a bit "magic".
+                 * See https://systemd.io/DESKTOP_ENVIRONMENTS/
+                 * and we also have some special cases for GNOME which is not
+                 * currently compliant to the specification. */
+                string ?systemd_unit = null;
+                string ?appid = null;
+                string[] components;
+
+                components = cgroup.split("/");
+                systemd_unit = components[components.length - 1];
+                appid = appid_from_unit (systemd_unit);
+                if (appid != null)
+                    info = appid_map[appid];
+
+                if (info != null)
+                    return info;
+            }
+
+            if (p.cmdline != null)
+                info = apps_info[p.cmdline];
+
+            if (info == null && p.app_id != null)
+                info = appid_map[p.app_id];
+
+            return info;
+        }
+
+        public static bool have_app_info (Process p) {
+            AppInfo? info = app_info_for_process (p);
+            return info != null;
         }
 
         public AppItem(Process process) {
-            app_info = apps_info.get(process.cmdline);
+            app_info = app_info_for_process (process);
             representative_cmdline = process.cmdline;
             representative_uid = process.uid;
             display_name = find_display_name();
             processes.insert(process.pid, process);
             load_user_account.begin();
+            gamemode = process.gamemode;
         }
 
         public AppItem.system() {
@@ -85,6 +197,7 @@ namespace Usage
         public void remove_processes() {
             cpu_load = 0;
             mem_usage = 0;
+            int games = 0;
 
             foreach(var process in processes.get_values()) {
                 if(!process.mark_as_updated)
@@ -93,9 +206,16 @@ namespace Usage
                     cpu_load += process.cpu_load;
                     mem_usage += process.mem_usage;
                 }
+                if(process.gamemode)
+                    games++;
             }
 
+            gamemode = games > 0;
             cpu_load = double.min(100, cpu_load);
+        }
+
+        public void remove_process (Process process) {
+            processes.remove (process.pid);
         }
 
         public void replace_process(Process process) {
@@ -123,26 +243,24 @@ namespace Usage
             }
         }
 
-        private static void sanity_cmd(ref string? commandline) {
-            if(commandline != null) {
-                //flatpak
-                if(commandline.contains("flatpak run")) {
-                    var index = commandline.index_of("--command=") + 10;
-                    commandline = commandline.substring(index);
-                }
+        private static void sanitize_cmd(ref string? commandline) {
+            if (commandline == null)
+                return;
 
-                try {
-                    var rgx = new Regex("[^a-zA-Z0-9._-]");
-
-                    commandline = Path.get_basename(commandline.split(" ")[0]);
-                    commandline = rgx.replace(commandline, commandline.length, 0, "");
-                } catch (RegexError e) {
-                    warning ("Unable to obtain process command: %s", e.message);
-                }
-
-                if(commandline.contains("google-chrome-stable")) //Workaround for google-chrome
-                    commandline = "chrome";
+            // flatpak: parse the command line of the containerized program
+            if (commandline.contains("flatpak run")) {
+                var index = commandline.index_of ("--command=") + 10;
+                commandline = commandline.substring (index);
             }
+
+            // TODO: unify this with the logic in get_full_process_cmd
+            commandline = Process.first_component (commandline);
+            commandline = Path.get_basename (commandline);
+            commandline = Process.sanitize_name (commandline);
+
+            // Workaround for google-chrome
+            if (commandline.contains ("google-chrome-stable"))
+                commandline = "chrome";
         }
     }
 }

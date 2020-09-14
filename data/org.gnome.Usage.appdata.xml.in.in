@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.gnome.Usage.desktop</id>
+  <id>@app-id@</id>
   <metadata_license>CC0-1.0</metadata_license>
   <name>GNOME Usage</name>
   <summary>A nice way to view information about use of system resources</summary>
@@ -27,12 +27,20 @@
   <project_group>GNOME</project_group>
   <url type="homepage">https://wiki.gnome.org/Apps/Usage</url>
   <update_contact>pstetka_at_redhat.com"</update_contact>
+  <releases>
+    <release version="3.32.0" date="2019-03-22">
+      <description>
+        <p>Boxes 3.32.0 is the latest stable release of GNOME Usage.</p>
+      </description>
+    </release>
+  </releases>
   <kudos>
     <kudo>AppMenu</kudo>
     <kudo>HiDpiIcon</kudo>
     <kudo>HighContrast</kudo>
     <kudo>ModernToolkit</kudo>
   </kudos>
+  <launchable type="desktop-id">@app-id@.desktop</launchable>
   <project_license>GPL-3.0+</project_license>
   <url type="bugtracker">https://gitlab.gnome.org/GNOME/gnome-usage/issues</url>
   <url type="donation">http://www.gnome.org/friends/</url>
