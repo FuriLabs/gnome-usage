@@ -36,7 +36,7 @@ namespace Usage
 
         public Application ()
         {
-            application_id = "org.gnome.Usage";
+            application_id = Config.APPLICATION_ID;
         }
 
         public Window? get_window()
@@ -53,14 +53,20 @@ namespace Usage
 
             set_accels_for_action("app.quit", {"<Primary>q"});
 
-            window.show_all();
+            window.show();
         }
 
         protected override void startup()
         {
             base.startup();
+
+            Hdy.init();
+
             add_action_entries(app_entries, this);
             set_accels_for_action ("app.search", {"<Primary>f"});
+
+            var icon_theme = Gtk.IconTheme.get_default ();
+            icon_theme.add_resource_path ("/org/gnome/Usage/icons/hicolor");
         }
 
         private void on_about(GLib.SimpleAction action, GLib.Variant? parameter)
@@ -75,7 +81,7 @@ namespace Usage
             };
 
             Gtk.show_about_dialog (window,
-                logo_icon_name: "org.gnome.Usage",
+                logo_icon_name: Config.APPLICATION_ID,
                 program_name: _("Usage"),
                 comments: _("A nice way to view information about use of system resources, like memory and disk space."),
                 authors: authors,
@@ -94,7 +100,7 @@ namespace Usage
 
         private void on_search(GLib.SimpleAction action, GLib.Variant? parameter)
         {
-            window.get_header_bar().action_on_search();
+            window.action_on_search();
         }
 
         private void on_activate_radio (GLib.SimpleAction action, GLib.Variant? state)

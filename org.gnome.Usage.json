@@ -1,6 +1,6 @@
 {
-    "app-id": "org.gnome.Usage",
-    "runtime": "org.gnome.Platform",
+    "app-id": "org.gnome.UsageDevel",
+    "runtime": "org.gnome.Sdk",
     "runtime-version": "master",
     "sdk": "org.gnome.Sdk",
     "command": "gnome-usage",
@@ -10,16 +10,10 @@
         "--share=ipc", "--socket=x11",
         "--socket=wayland",
         "--share=network",
+        "--add-policy=Tracker3.dbus:org.freedesktop.Tracker3.Miner.Files=tracker:FileSystem",
         "--filesystem=xdg-run/dconf", "--filesystem=~/.config/dconf:ro",
         "--talk-name=ca.desrt.dconf", "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
     ],
-    "build-options" : {
-        "cflags": "-O2 -g",
-        "cxxflags": "-O2 -g",
-        "env": {
-            "V": "1"
-        }
-    },
     "cleanup": ["/include", "/lib/pkgconfig",
                 "/share/pkgconfig", "/share/aclocal",
                 "/man", "/share/man", "/share/gtk-doc",
@@ -46,8 +40,25 @@
             ]
         },
         {
+            "name" : "libhandy",
+            "buildsystem" : "meson",
+            "config-opts" : [
+                "-Dexamples=false",
+                "-Dglade_catalog=disabled",
+                "-Dtests=false"
+            ],
+            "sources" : [
+                {
+                    "type" : "git",
+                    "url" : "https://gitlab.gnome.org/GNOME/libhandy.git"
+                }
+            ]
+        },
+        {
             "buildsystem": "meson",
-            "builddir": true,
+            "config-opts": [
+            	"-Dprofile=development"
+            ],
             "name": "gnome-usage",
             "sources": [
                 {
