@@ -1,11 +1,11 @@
-gnome-usage (3.38.0-1) UNRELEASED; urgency=medium
+gnome-usage (3.38.0-1) unstable; urgency=medium
 
   * New upstream release
   * debian/gbp.conf: Drop 'v' prefix on upstream-tag
   * debian/patches: Revert support for tracker-3 and use tracker-2
   * debian/control: Bump build dependencies to match upstream
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 14 Sep 2020 12:14:36 +0200
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 14 Sep 2020 12:16:16 +0200
 
 gnome-usage (3.32.0-1) unstable; urgency=medium
 
