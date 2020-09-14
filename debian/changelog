@@ -1,3 +1,9 @@
+gnome-usage (3.38.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 14 Sep 2020 11:58:08 +0200
+
 gnome-usage (3.32.0-1) unstable; urgency=medium
 
   * New upstream release
