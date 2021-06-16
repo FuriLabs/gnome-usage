@@ -1,3 +1,9 @@
+gnome-usage (3.38.1-2) UNRELEASED; urgency=medium
+
+  * Revert changes to revert to tracker 2
+
+ -- Iain Lane <laney@debian.org>  Wed, 16 Jun 2021 16:57:24 +0100
+
 gnome-usage (3.38.1-1) experimental; urgency=medium
 
   * New upstream release
