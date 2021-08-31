@@ -1,3 +1,11 @@
+gnome-usage (3.38.1-3) unstable; urgency=medium
+
+  * Bump debhelper-compat to 13
+  * debian/rules: Drop unneeded -Wl,--as-needed
+  * Upload to unstable
+
+ -- Jeremy Bicha <jbicha@debian.org>  Tue, 31 Aug 2021 17:26:32 -0400
+
 gnome-usage (3.38.1-2) experimental; urgency=medium
 
   * Revert changes to revert to tracker 2
