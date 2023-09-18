@@ -20,58 +20,53 @@
 
 using Gtk;
 
-namespace Usage
-{
-    [GtkTemplate (ui = "/org/gnome/Usage/ui/performance-view.ui")]
-    public class PerformanceView : View
-    {
-        [GtkChild]
-        private unowned Gtk.Box switcher_box;
+[GtkTemplate (ui = "/org/gnome/Usage/ui/performance-view.ui")]
+public class Usage.PerformanceView : View {
+    [GtkChild]
+    private unowned Gtk.Box switcher_box;
 
-        [GtkChild]
-        private unowned Gtk.Box performance_content;
+    [GtkChild]
+    private unowned Gtk.Box performance_content;
 
-        [GtkChild]
-        private unowned Hdy.SearchBar search_bar;
+    [GtkChild]
+    private unowned Gtk.SearchBar search_bar;
 
-        [GtkChild]
-        private unowned Gtk.SearchEntry search_entry;
+    [GtkChild]
+    private unowned Gtk.SearchEntry search_entry;
 
-        [GtkChild]
-        private unowned AnimatedScrolledWindow scrolled_window;
+    [GtkChild]
+    private unowned Gtk.ScrolledWindow scrolled_window;
 
-        View[] sub_views;
+    SubView[] sub_views;
 
-        public PerformanceView ()
-        {
-            name = "PERFORMANCE";
-            title = _("Performance");
-            icon_name = "speedometer-symbolic";
+    public PerformanceView () {
+        name = "PERFORMANCE";
+        title = _("Performance");
+        icon_name = "speedometer-symbolic";
 
-            sub_views = new View[]
-            {
-                new ProcessorSubView(),
-                new MemorySubView()
-            };
+        sub_views = new SubView[] {
+            new ProcessorSubView (),
+            new MemorySubView ()
+        };
 
-            foreach(var sub_view in sub_views)
-                performance_content.pack_start(sub_view, true, true, 0);
+        foreach (var sub_view in sub_views)
+            performance_content.append (sub_view);
 
-		    var stackSwitcher = new GraphStackSwitcher(scrolled_window, sub_views);
-            switcher_box.add (stackSwitcher);
+        AnimatedScrolledWindow animated_scrolled_window = new AnimatedScrolledWindow (scrolled_window);
+        var stackSwitcher = new GraphStackSwitcher (animated_scrolled_window, sub_views);
+        switcher_box.append (stackSwitcher);
+    }
 
-            show_all ();
-        }
+    [GtkCallback]
+    private void on_search_entry_changed () {
+        foreach (SubView sub_view in sub_views)
+            ((SubView) sub_view).search_in_processes (search_entry.get_text ());
+    }
 
-        [GtkCallback]
-        private void on_search_entry_changed () {
-            foreach(View sub_view in sub_views)
-                ((SubView) sub_view).search_in_processes(search_entry.get_text());
-        }
-
-        public void set_search_mode(bool enable)
-        {
-            search_bar.set_search_mode(enable);
+    public void set_search_mode (bool enable) {
+        search_bar.set_search_mode (enable);
+        if (enable) {
+            search_entry.grab_focus ();
         }
     }
 }

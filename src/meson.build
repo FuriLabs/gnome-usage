@@ -2,35 +2,30 @@ vala_sources = [
   'animated-scrolled-window.vala',
   'app-item.vala',
   'application.vala',
-  'color-rectangle.vala',
-  'cpu-graph-model.vala',
   'cpu-graph.vala',
   'cpu-monitor.vala',
   'cpu-sub-view.vala',
   'gnome-usage.vala',
   'game-mode.vala',
+  'graph.vala',
   'graph-box.vala',
-  'graph-stacked-renderer.vala',
   'graph-stack-switcher.vala',
   'graph-switcher-button.vala',
-  'loading-notification.vala',
-  'memory-graph-model.vala',
   'memory-graph.vala',
   'memory-monitor.vala',
   'memory-speedometer.vala',
   'memory-sub-view.vala',
   'monitor.vala',
   'no-results-found-view.vala',
-  'notification-bar.vala',
+  'performance-graph-view.vala',
   'performance-view.vala',
-  'pie-chart.vala',
-  'primary-menu.vala',
   'process-list-box.vala',
   'process-row.vala',
   'process.vala',
   'quit-process-dialog.vala',
   'settings.vala',
   'speedometer.vala',
+  'stack-list.vala',
   'storage/storage-actionbar.vala',
   'storage/storage-graph.vala',
   'storage/query-builder.vala',
@@ -48,6 +43,7 @@ vala_sources = [
 ]
 
 deps = [
+  gee_dep,
   gio_dep,
   gio_unix_dep,
   glib_dep,
@@ -55,8 +51,7 @@ deps = [
   gtk_dep,
   libgtop_dep,
   tracker_dep,
-  libdazzle_dep,
-  libhandy_dep,
+  libadwaita_dep,
   cc.find_library('m'),
   valac.find_library('config', dirs: vapi_dir),
   valac.find_library('stopgap', dirs: vapi_dir),
@@ -64,12 +59,12 @@ deps = [
 ]
 
 c_args = [
-  '-DVERSION="@0@"'.format(meson.project_version()),
+  '-DVERSION="@0@@1@"'.format(meson.project_version(), version_suffix),
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
   '-DGNOMELOCALEDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('localedir'))),
   '-DPROFILE="@0@"'.format(profile),
   '-DAPPLICATION_ID="@0@"'.format(application_id),
-  '-DNAME_SUFFIX="@0@"'.format(name_suffix)
+  '-DAPPLICATION_RESOURCE_PATH="@0@"'.format(resource_path)
 ]
 
 executable(

@@ -1,20 +1,20 @@
 include: 'https://gitlab.gnome.org/GNOME/citemplates/raw/master/flatpak/flatpak_ci_initiative.yml'
 stages:
-  - build
   - test
+  - review
   - deploy
 
-build:
+fedora:
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   before_script:
     - dnf update -y
-    - dnf install -y gcc meson gettext gtk-doc vala gtk3-devel libgtop2-devel 
-                     desktop-file-utils libdazzle-devel redhat-rpm-config
-    - dnf install -y dnf-plugins-core && dnf copr enable -y ssssam/tracker3 && dnf install --nogpg -y tracker3-devel
+    - dnf install -y gcc meson gettext gtk-doc vala gtk4-devel libgtop2-devel
+                     libadwaita-devel libgee-devel desktop-file-utils
+                     redhat-rpm-config tracker-devel
 
-  image: fedora:32
-  stage: build
+  image: fedora:rawhide
+  stage: test
   script:
   - meson _build .
   - ninja -C _build
@@ -26,8 +26,14 @@ flatpak:
     MANIFEST_PATH: 'org.gnome.Usage.json'
     RUNTIME_REPO: 'https://nightly.gnome.org/gnome-nightly.flatpakrepo'
     FLATPAK_MODULE: 'gnome-usage'
-    BUNDLE: "org.gnome.Usage.Devel.flatpak"
+    BUNDLE: "org.gnome.UsageDevel.flatpak"
     APP_ID: 'org.gnome.UsageDevel'
+
+i18n:
+  stage: review
+  script:
+    - ./build-aux/test/i18n-strings-check.sh
+
 
 nightly:
   extends: '.publish_nightly'

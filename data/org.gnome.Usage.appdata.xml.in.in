@@ -2,35 +2,42 @@
 <component type="desktop">
   <id>@app-id@</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <name>GNOME Usage</name>
+  <name>Usage</name>
   <summary>A nice way to view information about use of system resources</summary>
   <description>
     <p>
-        A simple GNOME 3 application to monitor and analyze system resources such
-        as processing, memory, and storage.
+        A simple application to monitor and analyze system resources such
+        as CPU and memory usage of running apps, and storage usage.
     </p>
   </description>
   <screenshots>
-    <screenshot height="950" width="647" type="default">
-      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/master/screenshots/screenshot-performance-view.png</image>
+    <screenshot height="1002" width="652" type="default">
+      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/main/screenshots/screenshot-performance-view.png</image>
     </screenshot>
-    <screenshot height="950" width="647">
-      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/master/screenshots/screenshot-performance-memory-view.png</image>
+    <screenshot height="1002" width="652">
+      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/main/screenshots/screenshot-performance-memory-view.png</image>
     </screenshot>
-    <screenshot height="950" width="647">
-      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/master/screenshots/screenshot-storage-view.png</image>
-    </screenshot>
-    <screenshot height="951" width="651">
-      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/master/screenshots/screenshot-about-dialog.png</image>
+    <screenshot height="1002" width="652">
+      <image>https://gitlab.gnome.org/GNOME/gnome-usage/raw/main/screenshots/screenshot-storage-view.png</image>
     </screenshot>
   </screenshots>
-  <project_group>GNOME</project_group>
   <url type="homepage">https://wiki.gnome.org/Apps/Usage</url>
-  <update_contact>pstetka_at_redhat.com"</update_contact>
+  <update_contact>camelcasenick@bewares.it</update_contact>
   <releases>
+    <release version="45.0" date="2023-09-17">
+      <description>
+        <p>Usage 45 is out with</p>
+        <ul>
+          <li>the new look and feel of modern Adwaita on GNOME</li>
+          <li>improved graphs that now just update every two seconds with a measurement for performance</li>
+          <li>more reliable application classifications due to fixed bugs</li>
+	        <li>scaling the CPU usage with its amount of threads, so that 100 % now means all cores are in use</li>
+        </ul>
+      </description>
+    </release>
     <release version="3.32.0" date="2019-03-22">
       <description>
-        <p>Boxes 3.32.0 is the latest stable release of GNOME Usage.</p>
+        <p>3.32.0 is the latest stable release of GNOME Usage.</p>
       </description>
     </release>
   </releases>
@@ -40,6 +47,15 @@
     <kudo>HighContrast</kudo>
     <kudo>ModernToolkit</kudo>
   </kudos>
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge" side="shortest">360</display_length>
+    <display_length compare="ge" side="longest">400</display_length>
+  </requires>
   <launchable type="desktop-id">@app-id@.desktop</launchable>
   <project_license>GPL-3.0+</project_license>
   <url type="bugtracker">https://gitlab.gnome.org/GNOME/gnome-usage/issues</url>
