@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 3.9 -->
+  <requires lib="gtk" version="4.0"/>
   <template class="UsageNoResultsFoundView" parent="UsageView">
-    <property name="visible">True</property>
+    <property name="visible">False</property>
+    <property name="hexpand">True</property>
     <child>
       <object class="GtkBox">
         <property name="margin-top">40</property>
         <property name="orientation">vertical</property>
+        <property name="hexpand">True</property>
         <child>
           <object class="GtkImage">
-            <property name="margin">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
             <property name="icon-name">system-run-symbolic</property>
             <property name="pixel-size">72</property>
           </object>
@@ -21,7 +26,10 @@
               <attribute name="weight" value="PANGO_WEIGHT_BOLD"/>
             </attributes>
             <property name="label" translatable="yes">No results found</property>
-            <property name="margin">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-top">10</property>
+            <property name="margin-bottom">10</property>
           </object>
         </child>
         <child>

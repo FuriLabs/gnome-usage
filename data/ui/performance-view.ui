@@ -1,62 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 3.9 -->
+  <requires lib="gtk" version="4.0"/>
 
   <template class="UsagePerformanceView" parent="UsageView">
-    <property name="visible">True</property>
 
     <child>
+      <object class="AdwBreakpoint">
+        <condition>max-width: 600px</condition>
+        <setter object="sidebar_overlay" property="collapsed">True</setter>
+      </object>
+    </child>
 
-      <object class="HdyLeaflet" id="leaflet">
-        <property name="visible">True</property>
-        <property name="orientation">horizontal</property>
-        <property name="can-swipe-back">True</property>
-        <property name="can-swipe-forward">True</property>
-        <property name="transition-type">under</property>
-        <property name="visible-child">content_box</property>
+    <child>
+      <object class="AdwOverlaySplitView" id="sidebar_overlay">
+        <property name="min-sidebar-width">180</property>
+        <property name="max-sidebar-width">360</property>
+        <property name="sidebar-width-fraction">0.2</property>
 
-        <child>
+        <property name="sidebar">
           <object class="GtkBox" id="switcher_box">
-            <property name="hexpand">False</property>
-            <property name="hexpand-set">True</property>
-            <property name="width-request">200</property>
-            <style>
-              <class name="sidebar"/>
-            </style>
           </object>
-        </child>
+        </property>
 
-        <child>
-          <object class="GtkSeparator">
-            <property name="visible">True</property>
-            <style>
-              <class name="sidebar" />
-            </style>
-          </object>
-          <packing>
-            <property name="navigatable">False</property>
-          </packing>
-        </child>
-
-        <child>
+        <property name="content">
           <object class="GtkBox" id="content_box">
-            <property name="visible">True</property>
             <property name="orientation">vertical</property>
-            <property name="width-request">360</property>
 
             <child>
-              <object class="HdySearchBar" id="search_bar">
-                  <property name="visible">True</property>
+              <object class="GtkSearchBar" id="search_bar">
 
                 <child>
-                  <object class="HdyClamp">
-                    <property name="visible">True</property>
+                  <object class="AdwClamp">
                     <property name="hexpand">True</property>
                     <property name="maximum-size">400</property>
                     <property name="tightening-threshold">300</property>
                     <child>
                       <object class="GtkSearchEntry" id="search_entry">
-                        <property name="visible">True</property>
                         <property name="hexpand">True</property>
                         <signal name="search-changed" handler="on_search_entry_changed"/>
                       </object>
@@ -67,18 +46,15 @@
             </child>
 
             <child>
-              <object class="UsageAnimatedScrolledWindow" id="scrolled_window">
-                <property name="visible">True</property>
+              <object class="GtkScrolledWindow" id="scrolled_window">
                 <property name="vexpand">True</property>
                 <child>
-                  <object class="HdyClamp">
-                    <property name="visible">True</property>
+                  <object class="AdwClamp">
                     <property name="margin-start">12</property>
                     <property name="margin-end">12</property>
-                    <property name="expand">True</property>
+                    <property name="hexpand">True</property>
                     <child>
                       <object class="GtkBox" id="performance_content">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">30</property>
                       </object>
@@ -88,7 +64,7 @@
               </object>
             </child>
           </object>
-        </child>
+        </property>
       </object>
     </child>
   </template>

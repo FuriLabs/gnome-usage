@@ -20,17 +20,15 @@
 
 using Gtk;
 
-namespace Usage {
+public class Usage.GraphBox : Gtk.Box {
 
-    public class GraphBox : Gtk.Box {
+    class construct {
+        set_css_name ("graph-box");
+    }
 
-        class construct
-        {
-            set_css_name("graph-box");
-        }
-
-        public GraphBox (Dazzle.GraphView graph) {
-            add(graph);
-        }
+    public GraphBox (GraphView graph) {
+        this.add_css_class ("view");
+        this.overflow = Gtk.Overflow.HIDDEN;
+        append (graph);
     }
 }

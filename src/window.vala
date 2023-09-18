@@ -19,140 +19,107 @@
  * Authors: Petr Štětka <pstetka@redhat.com>
  */
 
-namespace Usage
-{
-    public enum Views
-    {
-        PERFORMANCE,
-        STORAGE,
+public enum Usage.Views {
+    PERFORMANCE,
+    STORAGE;
+}
+
+public enum Usage.HeaderBarMode {
+    PERFORMANCE,
+    STORAGE;
+}
+
+[GtkTemplate (ui = "/org/gnome/Usage/ui/window.ui")]
+public class Usage.Window : Adw.ApplicationWindow {
+    [GtkChild]
+    private unowned Adw.ViewStack stack;
+
+    [GtkChild]
+    private unowned Gtk.Revealer performance_search_revealer;
+
+    [GtkChild]
+    private unowned Gtk.ToggleButton performance_search_button;
+
+    private HeaderBarMode mode;
+
+    private View[] views;
+
+    public Window (Gtk.Application application) {
+        GLib.Object (application : application);
+
+        if (Config.PROFILE == "Devel") {
+            this.add_css_class ("devel");
+        }
+
+        mode = HeaderBarMode.PERFORMANCE;
+        set_mode (HeaderBarMode.PERFORMANCE);
+
+        views = new View[] {
+            new PerformanceView (),
+            new StorageView (),
+        };
+
+        foreach (var view in views) {
+            stack.add_titled_with_icon (view, view.name, view.title, view.icon_name);
+        }
     }
 
-    public enum HeaderBarMode
-    {
-        PERFORMANCE,
-        STORAGE,
+    public void set_mode (HeaderBarMode mode) {
+        switch (this.mode) {
+            case HeaderBarMode.PERFORMANCE:
+                performance_search_revealer.reveal_child = false;
+                break;
+            case HeaderBarMode.STORAGE:
+                break;
+        }
+
+        switch (mode) {
+            case HeaderBarMode.PERFORMANCE:
+                performance_search_revealer.reveal_child = true;
+                break;
+            case HeaderBarMode.STORAGE:
+                break;
+        }
+
+        SimpleAction performance_action = this.get_application ().lookup_action ("filter-processes") as SimpleAction;
+        if (performance_action != null) {
+            performance_action.set_enabled (mode == HeaderBarMode.PERFORMANCE);
+        }
+
+        this.mode = mode;
     }
 
-    [GtkTemplate (ui = "/org/gnome/Usage/ui/window.ui")]
-    public class Window : Hdy.ApplicationWindow
-    {
-        [GtkChild]
-        private unowned Gtk.Stack stack;
-
-        [GtkChild]
-        private unowned Gtk.Revealer performance_search_revealer;
-
-        [GtkChild]
-        private unowned Gtk.ToggleButton performance_search_button;
-
-        [GtkChild]
-        private unowned Gtk.MenuButton primary_menu_button;
-
-        private HeaderBarMode mode;
-        private Usage.PrimaryMenu menu;
-
-        [GtkChild]
-        private unowned Hdy.ViewSwitcherBar view_switcher_bar;
-
-        private View[] views;
-
-		public Window(Gtk.Application application)
-        {
-            GLib.Object(application : application);
-
-            if(Config.PROFILE == "Devel") {
-                get_style_context().add_class("devel");
-            }
-
-            load_css();
-            Gtk.Settings.get_for_screen(get_screen()).notify["gtk-application-prefer-dark-theme"].connect(() =>
-            {
-                load_css();
-            });
-
-            mode = HeaderBarMode.PERFORMANCE;
-            menu = new Usage.PrimaryMenu();
-            this.primary_menu_button.set_popover(menu);
-
-            set_mode(HeaderBarMode.PERFORMANCE);
-
-            views = new View[]
-            {
-                new PerformanceView(),
-                new StorageView(),
-            };
-
-            foreach(var view in views) {
-                stack.add_titled(view, view.name, view.title);
-                stack.child_set (view, "icon-name", view.icon_name, null);
-            }
+    public void action_on_search () {
+        switch (mode) {
+            case HeaderBarMode.PERFORMANCE:
+                performance_search_button.set_active (!performance_search_button.get_active ());
+                break;
+            case HeaderBarMode.STORAGE:
+                break;
         }
+    }
 
-        public void set_mode(HeaderBarMode mode)
-        {
-            switch(this.mode)
-            {
-                case HeaderBarMode.PERFORMANCE:
-                    performance_search_revealer.reveal_child = false;
-                    break;
-                case HeaderBarMode.STORAGE:
-                    break;
-            }
+    public View[] get_views () {
+        return views;
+    }
 
-            switch(mode)
-            {
-                case HeaderBarMode.PERFORMANCE:
-                    performance_search_revealer.reveal_child = true;
-                    break;
-                case HeaderBarMode.STORAGE:
-                    break;
-            }
-            menu.mode = mode;
-            this.mode = mode;
-        }
+    [GtkCallback]
+    private void on_performance_search_button_toggled () {
+        var application = GLib.Application.get_default () as Application;
 
-        public void action_on_search()
-        {
-            switch(mode)
-            {
-                case HeaderBarMode.PERFORMANCE:
-                    performance_search_button.set_active(!performance_search_button.get_active());
-                    break;
-                case HeaderBarMode.STORAGE:
-                    break;
-            }
-        }
+        if (application == null)
+            return;
 
-        public View[] get_views()
-        {
-            return views;
-        }
+        /* TODO: Implement a saner way of toggling this mode. */
+        ((PerformanceView) application.get_window ().get_views ()[Views.PERFORMANCE]).set_search_mode (performance_search_button.active);
+    }
 
-        private void load_css()
-        {
-            var provider = new Gtk.CssProvider();
-            Gtk.StyleContext.reset_widgets(get_screen());
-            provider.load_from_resource("/org/gnome/Usage/interface/adwaita.css");
-            Gtk.StyleContext.add_provider_for_screen(get_screen(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-        }
-
-        [GtkCallback]
-        private void on_performance_search_button_toggled () {
-            /* TODO: Implement a saner way of toggling this mode. */
-            ((PerformanceView) (GLib.Application.get_default() as Application).get_window().get_views()[Views.PERFORMANCE]).set_search_mode(performance_search_button.active);
-        }
-
-        [GtkCallback]
-        private void on_visible_child_changed()
-        {
-            if(stack.visible_child_name == views[Views.PERFORMANCE].name)
-            {
-                set_mode(HeaderBarMode.PERFORMANCE);
-            }
-            else if(stack.visible_child_name == views[Views.STORAGE].name)
-            {
-                set_mode(HeaderBarMode.STORAGE);
-            }
+    [GtkCallback]
+    private void on_visible_child_changed () {
+        if (stack.visible_child_name == views[Views.PERFORMANCE].name) {
+            set_mode (HeaderBarMode.PERFORMANCE);
+        } else if (stack.visible_child_name == views[Views.STORAGE].name) {
+            set_mode (HeaderBarMode.STORAGE);
         }
     }
 }

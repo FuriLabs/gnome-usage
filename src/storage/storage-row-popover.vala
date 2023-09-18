@@ -24,15 +24,27 @@ public class Usage.StorageRowPopover : Gtk.Popover {
     [GtkChild]
     private unowned Gtk.Label label;
 
-    public void present (StorageViewRow row) {
-        relative_to = row;
+    public void popup_on_row (StorageViewRow row) {
+        Graphene.Rect row_bounds = Graphene.Rect ();
+        row.compute_bounds (this, out row_bounds);
 
-        switch(row.item.custom_type) {
+        Gdk.Rectangle pointing_to = Gdk.Rectangle ();
+
+        pointing_to.x = (int) row_bounds.get_top_left ().x;
+        pointing_to.y = (int) row_bounds.get_top_left ().y;
+        pointing_to.width = (int) row_bounds.get_width ();
+        pointing_to.height = (int) row_bounds.get_height ();
+
+        this.set_pointing_to (pointing_to);
+
+        switch (row.item.custom_type) {
             case StorageViewType.OS:
                 label.label = _("Operating system files are an essential part of your system and cannot be removed.");
                 break;
+            default:
+                break;
         }
 
-        popup();
+        popup ();
     }
 }

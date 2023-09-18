@@ -3,14 +3,17 @@
     "runtime": "org.gnome.Sdk",
     "runtime-version": "master",
     "sdk": "org.gnome.Sdk",
+    "sdk-extensions": [
+        "org.freedesktop.Sdk.Extension.vala-nightly"
+    ],
     "command": "gnome-usage",
     "tags": ["devel"],
-    "desktop-file-name-prefix": "(Development) ",
     "finish-args": [
-        "--share=ipc", "--socket=x11",
+        "--share=ipc", "--device=dri", "--socket=fallback-x11",
         "--socket=wayland",
         "--share=network",
         "--add-policy=Tracker3.dbus:org.freedesktop.Tracker3.Miner.Files=tracker:FileSystem",
+        "--filesystem=xdg-documents", "--filesystem=xdg-download", "--filesystem=xdg-music", "--filesystem=xdg-pictures", "--filesystem=xdg-videos",
         "--filesystem=xdg-run/dconf", "--filesystem=~/.config/dconf:ro",
         "--talk-name=ca.desrt.dconf", "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
     ],
@@ -30,35 +33,32 @@
             ]
         },
         {
-            "name" : "libdazzle",
-            "buildsystem" : "meson",
-            "sources" : [
-                {
-                    "type" : "git",
-                    "url" : "https://gitlab.gnome.org/GNOME/libdazzle.git"
+            "name": "gee-0.8",
+            "buildsystem": "autotools",
+	    "build-options" : {
+		"append-path": "/usr/lib/sdk/vala-nightly/bin",
+		"append-ld-library-path": "/usr/lib/sdk/vala-nightly/lib",
+                "env": {
+                    "ACLOCAL_PATH": "/usr/lib/sdk/vala-nightly/share/aclocal"
                 }
-            ]
-        },
-        {
-            "name" : "libhandy",
-            "buildsystem" : "meson",
-            "config-opts" : [
-                "-Dexamples=false",
-                "-Dglade_catalog=disabled",
-                "-Dtests=false"
-            ],
-            "sources" : [
+	    },
+            "sources": [
                 {
-                    "type" : "git",
-                    "url" : "https://gitlab.gnome.org/GNOME/libhandy.git"
+                    "type": "git",
+                    "url": "https://gitlab.gnome.org/GNOME/libgee",
+                    "branch": "main"
                 }
             ]
         },
         {
             "buildsystem": "meson",
             "config-opts": [
-            	"-Dprofile=development"
+                "-Dprofile=development"
             ],
+	    "build-options" : {
+		"append-path": "/usr/lib/sdk/vala-nightly/bin",
+		"append-ld-library-path": "/usr/lib/sdk/vala-nightly/lib"
+	    },
             "name": "gnome-usage",
             "sources": [
                 {
