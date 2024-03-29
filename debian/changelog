@@ -1,8 +1,10 @@
-gnome-usage (46.0-1) UNRELEASED; urgency=medium
+gnome-usage (46.0-1) unstable; urgency=medium
 
   * New upstream release
+  * Stop using debian/control.in and dh-sequence-gnome
+  * Bump minimum libadwaita to 1.5
 
- -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 29 Mar 2024 14:42:52 -0400
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 29 Mar 2024 14:45:53 -0400
 
 gnome-usage (45.0-1) unstable; urgency=medium
 
