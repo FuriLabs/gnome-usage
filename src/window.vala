@@ -2,6 +2,7 @@
  *
  * Copyright (C) 2017 Red Hat, Inc.
  * Copyright (C) 2020 Adrien Plazas <kekun.plazas@laposte.net>
+ * Copyright (C) 2024 Markus Göllnitz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Petr Štětka <pstetka@redhat.com>
+ *          Markus Göllnitz <camelcasenick@bewares.it>
  */
-
-public enum Usage.Views {
-    PERFORMANCE,
-    STORAGE;
-}
-
-public enum Usage.HeaderBarMode {
-    PERFORMANCE,
-    STORAGE;
-}
 
 [GtkTemplate (ui = "/org/gnome/Usage/ui/window.ui")]
 public class Usage.Window : Adw.ApplicationWindow {
@@ -40,7 +32,11 @@ public class Usage.Window : Adw.ApplicationWindow {
     [GtkChild]
     private unowned Gtk.ToggleButton performance_search_button;
 
-    private HeaderBarMode mode;
+    [GtkChild]
+    private unowned Gtk.SearchEntry search_entry;
+
+    [GtkChild]
+    private unowned Adw.ToolbarView content_area;
 
     private View[] views;
 
@@ -51,75 +47,95 @@ public class Usage.Window : Adw.ApplicationWindow {
             this.add_css_class ("devel");
         }
 
-        mode = HeaderBarMode.PERFORMANCE;
-        set_mode (HeaderBarMode.PERFORMANCE);
-
         views = new View[] {
-            new PerformanceView (),
+            new CpuView (),
+            new MemoryView (),
             new StorageView (),
         };
 
         foreach (var view in views) {
             stack.add_titled_with_icon (view, view.name, view.title, view.icon_name);
         }
-    }
 
-    public void set_mode (HeaderBarMode mode) {
-        switch (this.mode) {
-            case HeaderBarMode.PERFORMANCE:
-                performance_search_revealer.reveal_child = false;
-                break;
-            case HeaderBarMode.STORAGE:
-                break;
-        }
-
-        switch (mode) {
-            case HeaderBarMode.PERFORMANCE:
-                performance_search_revealer.reveal_child = true;
-                break;
-            case HeaderBarMode.STORAGE:
-                break;
-        }
-
-        SimpleAction performance_action = this.get_application ().lookup_action ("filter-processes") as SimpleAction;
-        if (performance_action != null) {
-            performance_action.set_enabled (mode == HeaderBarMode.PERFORMANCE);
-        }
-
-        this.mode = mode;
+        this.search_entry.set_key_capture_widget (content_area);
     }
 
     public void action_on_search () {
-        switch (mode) {
-            case HeaderBarMode.PERFORMANCE:
-                performance_search_button.set_active (!performance_search_button.get_active ());
-                break;
-            case HeaderBarMode.STORAGE:
-                break;
+        if (((View) this.stack.visible_child).search_available) {
+            performance_search_button.set_active (!performance_search_button.get_active ());
         }
-    }
-
-    public View[] get_views () {
-        return views;
     }
 
     [GtkCallback]
     private void on_performance_search_button_toggled () {
-        var application = GLib.Application.get_default () as Application;
+        if (!this.performance_search_button.active) {
+            this.search_entry.text = "";
+        } else {
+            search_entry.grab_focus ();
+        }
+    }
 
-        if (application == null)
-            return;
+    [GtkCallback]
+    private void on_search_entry_changed () {
+        foreach (View view in views) {
+            view.set_search_text (search_entry.get_text ());
+        }
+    }
 
-        /* TODO: Implement a saner way of toggling this mode. */
-        ((PerformanceView) application.get_window ().get_views ()[Views.PERFORMANCE]).set_search_mode (performance_search_button.active);
+    [GtkCallback]
+    private bool on_search_entry_key_pressed (uint keyvalue, uint keycode, Gdk.ModifierType state) {
+        if (keyvalue == Gdk.Key.Down || keyvalue == Gdk.Key.KP_Down) {
+            return this.child_focus (Gtk.DirectionType.TAB_FORWARD);
+        }
+
+        if (keyvalue == Gdk.Key.Escape) {
+            this.performance_search_button.active = false;
+        }
+
+        return false;
     }
 
     [GtkCallback]
     private void on_visible_child_changed () {
-        if (stack.visible_child_name == views[Views.PERFORMANCE].name) {
-            set_mode (HeaderBarMode.PERFORMANCE);
-        } else if (stack.visible_child_name == views[Views.STORAGE].name) {
-            set_mode (HeaderBarMode.STORAGE);
+        bool search_available = ((View) this.stack.visible_child).search_available;
+
+        this.performance_search_button.active &= search_available;
+        this.performance_search_revealer.reveal_child = search_available;
+
+        SimpleAction performance_action = this.get_application ().lookup_action ("filter-processes") as SimpleAction;
+        if (performance_action != null) {
+            performance_action.set_enabled (search_available);
         }
+    }
+
+    [GtkCallback]
+    string get_title_for_usage_view (Usage.View? view) {
+        if (view != null) {
+            return view.title;
+        }
+        return "";
+    }
+
+    /* TODO: use GtkCallback attribute, see https://gitlab.gnome.org/GNOME/vala/-/issues/1523 */
+    static construct {
+        bind_template_callback_full ("get_switcher_widget_for_usage_view", (Callback) get_switcher_widget_for_usage_view);
+    }
+
+    Gtk.Widget get_switcher_widget_for_usage_view (Usage.View? view) {
+        Gtk.Widget? switcher_widget = null;
+        string fallback_icon_name = "speedometer-symbolic";
+
+        if (view != null) {
+            switcher_widget = view.switcher_widget;
+            fallback_icon_name = view.icon_name;
+        }
+
+        if (switcher_widget == null) {
+            Gtk.Image fallback_icon = new Gtk.Image.from_icon_name (fallback_icon_name);
+            fallback_icon.icon_size = Gtk.IconSize.LARGE;
+            switcher_widget = fallback_icon;
+        }
+
+        return switcher_widget;
     }
 }

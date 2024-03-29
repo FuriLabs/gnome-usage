@@ -31,7 +31,7 @@ public class Usage.Application : Adw.Application {
     };
 
     public Application () {
-        Object (application_id: Config.APPLICATION_ID, flags: ApplicationFlags.FLAGS_NONE, resource_base_path: Config.APPLICATION_RESOURCE_PATH);
+        Object (application_id: Config.APPLICATION_ID, flags: ApplicationFlags.DEFAULT_FLAGS, resource_base_path: Config.APPLICATION_RESOURCE_PATH);
     }
 
     public Window? get_window () {
@@ -46,7 +46,7 @@ public class Usage.Application : Adw.Application {
 
         set_accels_for_action ("app.quit", {"<Control>q"});
 
-        window.show ();
+        window.present ();
     }
 
     protected override void startup () {
@@ -67,18 +67,14 @@ public class Usage.Application : Adw.Application {
             "Jakub Steiner <jsteiner@redhat.com>"
         };
 
-        new Adw.AboutWindow () {
-            transient_for = window,
-            application_icon = Config.APPLICATION_ID,
-            application_name = _("Usage"),
+        // TODO: should use Config.APPLICATION_ID, see data/meson.build
+        new Adw.AboutDialog.from_appdata (Config.APPLICATION_RESOURCE_PATH + "org.gnome.Usage" + ".appdata.xml",
+                                          Config.VERSION.split ("-")[0]) {
             comments = _("A nice way to view information about use of system resources, like memory and disk space."),
             developers = authors,
             designers = artists,
             translator_credits = _("translator-credits"),
-            website = "https://wiki.gnome.org/Apps/Usage",
-            version = Config.VERSION,
-            license_type = License.GPL_3_0
-        }.present ();
+        }.present (window);
     }
 
     private void on_quit (GLib.SimpleAction action, GLib.Variant? parameter) {

@@ -1,7 +1,7 @@
 /* view.vala
  *
  * Copyright (C) 2017 Red Hat, Inc.
- * Copyright (C) 2023 Markus Göllnitz
+ * Copyright (C) 2023–2024 Markus Göllnitz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,21 +23,20 @@
 public abstract class Usage.View : Adw.BreakpointBin {
     public string title;
     public string icon_name;
+    public Gtk.Widget? switcher_widget;
+    public bool search_available = false;
 
     construct {
         this.width_request = 360;
-        this.height_request = 300;
+        this.height_request = 210;
     }
 
     protected View () {
     }
-}
 
-public abstract class Usage.SubView : Adw.Bin {
-    public string title;
-
-    protected SubView () {
+    public virtual void set_search_text (string query) {
+        if (search_available) {
+            critical ("Search Feature Not Yet Implemented");
+        }
     }
-
-    public abstract void search_in_processes (string text);
 }

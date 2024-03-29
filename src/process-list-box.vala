@@ -1,6 +1,7 @@
 /* process-list-box.vala
  *
  * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2023-2024 Markus Göllnitz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,36 +17,70 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Petr Štětka <pstetka@redhat.com>
+ *          Markus Göllnitz <camelcasenick@bewares.it>
  */
 
-public enum Usage.ProcessListBoxType {
-    PROCESSOR,
-    MEMORY;
+public delegate bool Usage.FilterFunc<T> (T object);
+public delegate Gtk.Widget Usage.WidgetFactoryFunc<T> (T object);
+public struct Usage.ProcessListBoxType {
+    public unowned CompareDataFunc<AppItem> comparator;
+    public unowned Usage.FilterFunc<AppItem> filter;
+    public unowned Usage.WidgetFactoryFunc<AppItem> load_widget_factory;
 }
 
 public class Usage.ProcessListBox : Adw.Bin {
-    public Gtk.ListBox list_box { get; private set; default = new Gtk.ListBox (); }
+    public Gtk.ListView list_view { get; private set; }
 
     public bool empty { get; set; default = true; }
     public string search_text { get; set; default = ""; }
 
     private ListStore model;
+    private Gtk.Filter filter;
+    private Gtk.Sorter sorter;
     private ProcessListBoxType type;
+    private HashTable<AppItem, ProcessRowItem> item_for_app;
 
     public ProcessListBox (ProcessListBoxType type) {
-        this.set_child (list_box);
-
-        list_box.set_selection_mode (Gtk.SelectionMode.NONE);
-        list_box.add_css_class ("boxed-list");
-
         this.type = type;
-        model = new ListStore (typeof (AppItem));
-        list_box.bind_model (model, on_row_created);
+        this.item_for_app = new HashTable<AppItem, ProcessRowItem> (GLib.direct_hash, GLib.direct_equal);
+        this.model = new ListStore (typeof (ProcessRowItem));
+        this.filter = new Gtk.CustomFilter ((item) => {
+            AppItem app = ((ProcessRowItem) item).app;
 
-        list_box.row_activated.connect ((row) => {
-            var process_row = (ProcessRow) row;
-            process_row.activate ();
+            if (search_text != "") {
+                return app.display_name.down ().contains (search_text.down ())
+                       || app.representative_cmdline.down ().contains (search_text.down ())
+                       || (app.container?.down ()?.contains (search_text.down ()) ?? false);
+            }
+
+            return this.type.filter (app);
         });
+        this.sorter = new Gtk.CustomSorter((a, b) => {
+            return this.type.comparator (((ProcessRowItem) a).app, ((ProcessRowItem) b).app);
+        });
+
+        Gtk.FilterListModel filter_model = new Gtk.FilterListModel (this.model, filter);
+        Gtk.SortListModel sort_model = new Gtk.SortListModel (filter_model, sorter);
+        Gtk.SelectionModel selection_model = new Gtk.NoSelection (sort_model);
+
+        typeof (Usage.ProcessUserTag).ensure ();
+        Gtk.BuilderListItemFactory factory = new Gtk.BuilderListItemFactory.from_resource (null, "/org/gnome/Usage/ui/process-row.ui");
+        this.list_view = new Gtk.ListView (selection_model, factory);
+
+        this.list_view.add_css_class ("card");
+        this.list_view.show_separators = true;
+        this.list_view.single_click_activate = true;
+
+        this.list_view.activate.connect ((list_view, position) => {
+            AppItem app = ((ProcessRowItem) list_view.get_model ().get_item (position)).app;
+
+            if (app.representative_cmdline != "system") {
+                AppDialog dialog = new AppDialog (app);
+                dialog.present ((Gtk.Window) this.get_root ());
+            }
+        });
+
+        this.set_child (list_view);
 
         this.notify["search-text"].connect ((sender, property) => {
             update ();
@@ -60,54 +95,44 @@ public class Usage.ProcessListBox : Adw.Bin {
         var settings = Settings.get_default ();
         Timeout.add (settings.list_update_interval_UI, update);
 
-        bind_property ("empty", this, "visible", BindingFlags.INVERT_BOOLEAN);
+        this.bind_property ("empty", this, "visible", BindingFlags.INVERT_BOOLEAN | BindingFlags.SYNC_CREATE);
     }
 
     private bool update () {
-        model.remove_all ();
-
-        CompareDataFunc<AppItem> app_cmp = (a, b) => {
-            AppItem app_a = (AppItem) a;
-            AppItem app_b = (AppItem) b;
-
-            switch (type) {
-                default:
-                case ProcessListBoxType.PROCESSOR:
-                    return (int) ((uint64) (app_a.cpu_load < app_b.cpu_load) - (uint64) (app_a.cpu_load > app_b.cpu_load));
-                case ProcessListBoxType.MEMORY:
-                    return (int) ((uint64) (app_a.mem_usage < app_b.mem_usage) - (uint64) (app_a.mem_usage > app_b.mem_usage));
-            }
-        };
-
         var system_monitor = SystemMonitor.get_default ();
-        Settings settings = Settings.get_default ();
-        if (search_text == "") {
-            switch (type) {
-                default:
-                case ProcessListBoxType.PROCESSOR:
-                    foreach (unowned AppItem app in system_monitor.get_apps ()) {
-                        if (app.cpu_load > settings.app_minimum_load)
-                            model.insert_sorted (app, app_cmp);
-                    }
-                    break;
-                case ProcessListBoxType.MEMORY:
-                    foreach (unowned AppItem app in system_monitor.get_apps ())
-                        if (app.mem_usage > settings.app_minimum_memory)
-                            model.insert_sorted (app, app_cmp);
-                    break;
+        List<unowned AppItem> apps = system_monitor.get_apps ();
+
+        uint inserted = 0;
+        uint removed = 0;
+
+        for (uint position = 0; position < model.n_items; position++) {
+            AppItem app = ((ProcessRowItem) model.get_item (position)).app;
+            if (apps.index (app) < 0 || !app.is_running ()) {
+                model.remove (position);
+                item_for_app.remove (app);
+                removed++;
             }
-        } else {
-            foreach (unowned AppItem app in system_monitor.get_apps ()) {
-                if (app.display_name.down ().contains (search_text.down ()) || app.representative_cmdline.down ().contains (search_text.down ()))
-                    model.insert_sorted (app, app_cmp);
+        }
+        foreach (unowned AppItem app in system_monitor.get_apps ()) {
+            uint index;
+            if (!model.find (item_for_app.@get (app), out index) && app.is_running ()) {
+                ProcessRowItem item = new ProcessRowItem (app, type);
+                model.append (item);
+                item_for_app.insert (app, item);
+                inserted++;
             }
         }
 
-        empty = (model.get_n_items () == 0);
-        return true;
-    }
+        debug (@"$inserted started; $removed stopped");
 
-    private Gtk.Widget on_row_created (Object item) {
-        return new ProcessRow ((AppItem) item, type);
+        for (uint position = 0; position < model.n_items; position++) {
+            ProcessRowItem item = (ProcessRowItem) model.get_item (position);
+            item.notify_property ("load_widget");
+        }
+        filter.changed (Gtk.FilterChange.DIFFERENT);
+        sorter.changed (Gtk.SorterChange.DIFFERENT);
+
+        empty = (this.list_view.model.get_n_items () == 0);
+        return true;
     }
 }

@@ -3,22 +3,17 @@ graph-box:not(.card) {
     border-radius: 6px;
 }
 
-list row.max {
-    background: alpha(@error_color, 0.3);
-}
-
-list row.max:hover {
-    background: alpha(@error_color, 0.4);
-}
-
-list row {
+listview row {
     font-feature-settings: "tnum";
-
 }
 
-button.graph-switcher {
-    border-style: none;
-    border-radius: 0;
+/* ListView is not supported by .boxed-list, this is needed for using .card */
+listview.card > row:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+listview.card > row:last-child {
+    border-radius: 0 0 12px 12px;
 }
 
 rg-graph.big {
@@ -122,48 +117,4 @@ Speedometer {
 .storage-row {
     padding: 0 5px;
     font-feature-settings: "tnum";
-}
-
-.stack-children .storage-row {
-    border-bottom: 1px solid @borders;    
-}
-
-.stack-children { background: alpha(@window_fg_color, 0.05); }
-
-box.storage {
-    background-color: #ffffff;
-}
-
-row.up-folder:not(:hover) {
-    background: @view_bg_color;
-}
-
-row.up-folder:not(:backdrop)  {
-    border-bottom: 1px solid shade(@borders, 0.8);
-}
-
-.storage-list list {
-    background: @window_bg_color;
-    border-color: @borders;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-}
-
-.storage-list list:not(:backdrop)  {
-    border-top: 1px solid shade(@borders, 0.8);
-}
-
-.storage-list list.stack-header {
-    padding-bottom: 1px;
-    margin: 0px;
-    border:none;
-}
-
-.storage-graph-view:dir(ltr) {
-    border-left: 1px solid @borders;
-}
-
-.storage-graph-view:dir(rtl) {
-    border-right: 1px solid @borders;
 }

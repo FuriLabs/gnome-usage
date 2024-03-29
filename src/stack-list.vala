@@ -22,6 +22,10 @@ public class Usage.StackList : Gtk.Box {
     private Gtk.ListBox list_box = new Gtk.ListBox ();
     private Queue<ListStore> models = new Queue<ListStore>();
     private int depth = 0;
+    public Gtk.SelectionMode selection_mode {
+        get { return list_box.selection_mode; }
+        set { list_box.selection_mode = value; }
+    }
 
     public void init (Gtk.ListBoxCreateWidgetFunc row_function) {
         Gtk.ScrolledWindow scrolled_window = new Gtk.ScrolledWindow ();
@@ -29,6 +33,13 @@ public class Usage.StackList : Gtk.Box {
         scrolled_window.vexpand = true;
         scrolled_window.hexpand = true;
         scrolled_window.child = list_box;
+
+        list_box.margin_top = 12;
+        list_box.margin_bottom = 12;
+        list_box.margin_start = 12;
+        list_box.margin_end = 12;
+        list_box.valign = Gtk.Align.START;
+        list_box.add_css_class ("boxed-list");
 
         this.append (scrolled_window);
 

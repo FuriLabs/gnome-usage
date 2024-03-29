@@ -1,6 +1,7 @@
-/* cpu-sub-view.vala
+/* cpu-view.vala
  *
  * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2024 Markus Göllnitz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,30 +17,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors: Petr Štětka <pstetka@redhat.com>
+ *          Markus Göllnitz <camelcasenick@bewares.it>
  */
 
-public class Usage.ProcessorSubView : SubView {
+[GtkTemplate (ui = "/org/gnome/Usage/ui/cpu-view.ui")]
+public class Usage.CpuView : View {
     private ProcessListBox process_list_box;
     private NoResultsFoundView no_process_view;
 
-    public ProcessorSubView () {
-        name = "PROCESSOR";
+    [GtkChild]
+    private unowned Gtk.Box cpu_box;
 
-        var label = new Gtk.Label ("<span font_desc=\"14.0\">" + _("Processor") + "</span>");
-        label.set_use_markup (true);
-        label.margin_top = 25;
-        label.margin_bottom = 15;
+    public CpuView () {
+        name = "PROCESSOR";
+        title = _("Processor");
+        icon_name = "speedometer-symbolic";
+        search_available = true;
+        switcher_widget = new GraphBox (new CpuGraphMostUsedCore ());
+        switcher_widget.height_request = 80;
 
         var cpu_graph = new CpuGraph ();
-        cpu_graph.hexpand = true;
         var cpu_graph_box = new GraphBox (cpu_graph);
         cpu_graph_box.height_request = 225;
         cpu_graph_box.valign = Gtk.Align.START;
         cpu_graph_box.add_css_class ("card");
 
-        process_list_box = new ProcessListBox (ProcessListBoxType.PROCESSOR);
-        process_list_box.margin_bottom = 20;
-        process_list_box.margin_top = 30;
+        process_list_box = new ProcessListBox (ProcessListBoxType () {
+            comparator = (a, b) => {
+                return (int) ((uint64) (a.cpu_load < b.cpu_load) - (uint64) (a.cpu_load > b.cpu_load));
+            },
+            filter = (item) => {
+                return item.cpu_load > Settings.get_default ().app_minimum_load;
+            },
+            load_widget_factory = (item) => {
+                Gtk.Label load_label = new Gtk.Label ("%.1f %%".printf (item.cpu_load));
+
+                load_label.ellipsize = Pango.EllipsizeMode.END;
+                load_label.max_width_chars = 30;
+
+                return load_label;
+            },
+        });
 
         var spinner = new Gtk.Spinner ();
         spinner.map.connect (spinner.start);
@@ -51,8 +69,6 @@ public class Usage.ProcessorSubView : SubView {
 
         no_process_view = new NoResultsFoundView ();
 
-        var cpu_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
-        cpu_box.append (label);
         cpu_box.append (cpu_graph_box);
         cpu_box.append (spinner);
         cpu_box.append (no_process_view);
@@ -69,11 +85,9 @@ public class Usage.ProcessorSubView : SubView {
         });
 
         process_list_box.bind_property ("empty", no_process_view, "visible", BindingFlags.BIDIRECTIONAL);
-
-        set_child (cpu_box);
     }
 
-    public override void search_in_processes (string text) {
-        process_list_box.search_text = text;
+    public override void set_search_text (string query) {
+        process_list_box.search_text = query;
     }
 }
