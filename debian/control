@@ -4,12 +4,11 @@ Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: Iain Lane <laney@debian.org>, Jeremy Bícha <jbicha@ubuntu.com>, Marco Trevisan (Treviño) <marco@ubuntu.com>
 Build-Depends: debhelper-compat (= 13),
-               libadwaita-1-dev (>= 1.4),
+               libadwaita-1-dev (>= 1.5),
                libgee-0.8-dev,
-               libglib2.0-dev (>= 2.44.0),
+               libglib2.0-dev (>= 2.74.0),
                libgtk-4-dev (>= 4.11.3),
                libgtop2-dev (>= 2.34.0),
-               libhandy-1-dev (>= 1.0.0),
                libtracker-sparql-3.0-dev,
                meson (>= 0.50),
                valac
