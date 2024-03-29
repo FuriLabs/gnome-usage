@@ -1,4 +1,28 @@
+/* app-item.vala
+ *
+ * Copyright (C) 2018 Red Hat, Inc.
+ * Copyright (C) 2023 Markus Göllnitz
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Authors: Petr Štětka <pstetka@redhat.com>
+ *          Markus Göllnitz <camelcasenick@bewares.it>
+ */
+
 public class Usage.AppItem : Object {
+    private static Icon default_icon = new GLib.ThemedIcon ("system-run-symbolic");
+
     public HashTable<Pid?, Process>? processes { get; set; }
     public string display_name { get; private set; }
     public string representative_cmdline { get; private set; }
@@ -7,9 +31,31 @@ public class Usage.AppItem : Object {
     public uint64 mem_usage { get; private set; }
     public Fdo.AccountsUser? user { get; private set; default = null; }
     public bool gamemode {get; private set; }
+    public bool is_background { get; set; }
+    public virtual bool running {
+        get {
+            return processes.length > 0;
+        }
+    }
+    public virtual Icon icon {
+        get {
+            if (app_info == null || app_info.get_icon () == null) {
+                return default_icon;
+            }
+            return app_info.get_icon ();
+        }
+    }
+    public virtual string? container {
+        get {
+            if ((this.app_info as DesktopAppInfo)?.get_categories () == "X-WayDroid-App;") {
+                return "Waydroid";
+            }
+            return null;
+        }
+    }
 
-    private static HashTable<string, AppInfo>? apps_info;
-    private static HashTable<string, AppInfo>? appid_map;
+    private static HashTable<string, AppInfo> apps_info;
+    private static HashTable<string, AppInfo> appid_map;
     private AppInfo? app_info = null;
 
     public static void init () {
@@ -20,29 +66,44 @@ public class Usage.AppItem : Object {
 
         foreach (AppInfo info in _apps_info) {
             GLib.DesktopAppInfo? dai = info as GLib.DesktopAppInfo;
-            string ?id = null;
+            string? id = null;
 
             if (dai != null) {
-                id = dai.get_string ("X-Flatpak");
-                if (id != null)
-                    appid_map.insert (id, info);
+                id = dai?.get_string ("X-Flatpak");
+                if (id != null) {
+                    appid_map.insert ((!) id, info);
+                }
             }
 
             if (id == null) {
                 id = info.get_id ();
-                if (id != null && id.has_suffix (".desktop"))
-                    id = id[0:id.length - 8];
-                if (id != null)
-                    appid_map.insert (id, info);
+
+                if (id?.has_suffix (".desktop") ?? false) {
+                    id = id?.substring (0, id?.length - 8);
+                }
+                if (dai?.get_categories () == "X-WayDroid-App;") {
+                    if (id == "Waydroid") {
+                        apps_info.insert ("waydroid", info);
+                        id = "system_waydroid";
+                    } else {
+                        id = id?.substring (9);
+                    }
+                }
+
+                if (id != null) {
+                    appid_map.insert ((!) id, info);
+                }
             }
 
-            string cmd = info.get_commandline ();
+            string? cmd = info.get_commandline ();
 
             if (cmd == null)
                 continue;
 
             sanitize_cmd (ref cmd);
-            apps_info.insert (cmd, info);
+            if (apps_info[(!) cmd] == null) {
+                apps_info.insert ((!) cmd, info);
+            }
         }
     }
 
@@ -100,6 +161,12 @@ public class Usage.AppItem : Object {
         string ?cgroup = null;
 
         cgroup = Process.read_cgroup (p.pid);
+
+        /* Waydroid */
+        if (cgroup == "/lxc.payload.waydroid") {
+            return appid_map[p.cmdline] ?? appid_map["system_waydroid"];
+        }
+
         if (cgroup != null) {
             /* Try to extract an application ID, this is a bit "magic".
              * See https://systemd.io/DESKTOP_ENVIRONMENTS/
@@ -138,7 +205,7 @@ public class Usage.AppItem : Object {
         representative_cmdline = process.cmdline;
         representative_uid = process.uid;
         display_name = find_display_name ();
-        processes.insert (process.pid, process);
+        this.insert_process (process);
         load_user_account.begin ();
         gamemode = process.gamemode;
     }
@@ -152,17 +219,12 @@ public class Usage.AppItem : Object {
         processes = new HashTable<Pid?, Process>(int_hash, int_equal);
     }
 
-    public bool contains_process (Pid pid) {
-        return processes.contains (pid);
+    public bool is_running () {
+        return this.running;
     }
 
-    public Icon get_icon () {
-        var app_icon = (app_info == null) ? null : app_info.get_icon ();
-
-        if (app_info == null || app_icon == null)
-            return new GLib.ThemedIcon ("system-run-symbolic");
-        else
-            return app_icon;
+    public bool contains_process (Pid pid) {
+        return processes.contains (pid);
     }
 
     public Process get_process_by_pid (Pid pid) {
@@ -171,12 +233,21 @@ public class Usage.AppItem : Object {
 
     public void insert_process (Process process) {
         processes.insert (process.pid, process);
+        this.notify_property ("running");
     }
 
-    public void kill () {
-        foreach (var process in processes.get_values ()) {
-            debug ("Terminating %d", (int) process.pid);
-            Posix.kill (process.pid, Posix.Signal.KILL);
+    public bool is_killable () {
+        bool blocked = this.representative_cmdline in Settings.get_default ().get_strv ("unkillable-processes");
+        bool by_current_user = this.user?.Uid == Posix.geteuid ();
+        return !blocked && by_current_user;
+    }
+
+    public void kill (Posix.Signal? sig = Posix.Signal.TERM) {
+        if (this.is_killable ()) {
+            foreach (var process in processes.get_values ()) {
+                debug ("Terminating %d", (int) process.pid);
+                Posix.kill (process.pid, sig ?? Posix.Signal.TERM);
+            }
         }
     }
 
@@ -192,7 +263,7 @@ public class Usage.AppItem : Object {
 
         foreach (var process in processes.get_values ()) {
             if (!process.mark_as_updated) {
-                processes.remove (process.pid);
+                this.remove_process (process);
             } else {
                 cpu_load += process.cpu_load;
                 mem_usage += process.mem_usage;
@@ -207,10 +278,12 @@ public class Usage.AppItem : Object {
 
     public void remove_process (Process process) {
         processes.remove (process.pid);
+        this.notify_property ("running");
     }
 
     public void replace_process (Process process) {
         processes.replace (process.pid, process);
+        this.notify_property ("running");
     }
 
     private string find_display_name () {
@@ -242,6 +315,10 @@ public class Usage.AppItem : Object {
         if (commandline.contains ("flatpak run")) {
             var index = commandline.index_of ("--command=") + 10;
             commandline = commandline.substring (index);
+        }
+
+        if (commandline.contains ("waydroid app launch ")) {
+            commandline = commandline.substring (20);
         }
 
         // TODO: unify this with the logic in get_full_process_cmd
