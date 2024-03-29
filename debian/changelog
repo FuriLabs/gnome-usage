@@ -1,3 +1,9 @@
+gnome-usage (46.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 29 Mar 2024 14:42:52 -0400
+
 gnome-usage (45.0-1) unstable; urgency=medium
 
   * New upstream release
