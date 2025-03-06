@@ -39,7 +39,7 @@ public class Usage.StorageViewRow : Gtk.ListBoxRow {
     public unowned Gtk.Label size_label;
 
     [GtkChild]
-    public unowned Gtk.Spinner spinner;
+    public unowned Adw.Spinner spinner;
 
     [GtkChild]
     public unowned Gtk.Box tag;
@@ -70,6 +70,8 @@ public class Usage.StorageViewRow : Gtk.ListBoxRow {
     public StorageViewRow.from_item (StorageViewItem item) {
         this.item = item;
 
+        this.name = "row-" + direct_hash (this).to_string ();
+
         tag.add_css_class (item.style_class);
         item.color = item.get_base_color ();
 
@@ -91,14 +93,12 @@ public class Usage.StorageViewRow : Gtk.ListBoxRow {
 
             if (!item.loaded) {
                 spinner.visible = true;
-                spinner.start ();
                 size_label.visible = false;
             }
 
             item.notify["loaded"].connect (() => {
                 if (item.loaded) {
                     spinner.visible = false;
-                    spinner.stop ();
                     size_label.visible = true;
                 }
             });
@@ -112,14 +112,11 @@ public class Usage.StorageViewRow : Gtk.ListBoxRow {
     }
 
     private void change_color (Gdk.RGBA color) {
-        var css_provider = new Gtk.CssProvider ();
-        tag.get_style_context ().add_provider (css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-        var css =
-        @".row-tag {
-            background: $color;
-        }";
+        Gtk.CssProvider css_provider = new Gtk.CssProvider ();
+        string css = @"#$name { --storage-row-colour: $color; }";
 
         css_provider.load_from_string (css);
+        Gtk.StyleContext.add_provider_for_display (Gdk.Display.get_default (), css_provider,
+                                                   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
 }

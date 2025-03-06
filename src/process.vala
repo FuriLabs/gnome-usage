@@ -24,6 +24,19 @@ public class Usage.Process : Object {
     public uint uid { get; private set; }
     public uint64 start_time { get; set; default = 0; }
 
+    private bool _cgroup_read = false;
+    private string? _cgroup;
+    public string? cgroup {
+        get {
+            if (!this._cgroup_read) {
+                this._cgroup = Process.read_cgroup (this.pid);
+                this._cgroup_read = true;
+            }
+
+            return this._cgroup;
+        }
+    }
+
     public double cpu_load { get; set; default = 0; }
     public double x_cpu_load { get; set; default = 0; }
     public uint64 cpu_last_used { get; set; default = 0; }
@@ -53,24 +66,25 @@ public class Usage.Process : Object {
         switch (proc_state.state) {
             case GTop.PROCESS_RUNNING:
             case GTop.PROCESS_UNINTERRUPTIBLE:
-                status = ProcessStatus.RUNNING;
+                this.status = ProcessStatus.RUNNING;
                 break;
             case GTop.PROCESS_SWAPPING:
             case GTop.PROCESS_INTERRUPTIBLE:
             case GTop.PROCESS_STOPPED:
-                status = ProcessStatus.SLEEPING;
+                this.status = ProcessStatus.SLEEPING;
                 break;
             case GTop.PROCESS_DEAD:
             case GTop.PROCESS_ZOMBIE:
             default:
-                status = ProcessStatus.DEAD;
+                if (this.cpu_load > 0) {
+                    this.status = ProcessStatus.RUNNING;
+                } else {
+                    this.status = ProcessStatus.DEAD;
+                }
                 break;
         }
 
-        if (cpu_load > 0)
-            status = ProcessStatus.RUNNING;
-
-        mark_as_updated = true;
+        this.mark_as_updated = true;
     }
 
     private uint _get_uid () {
@@ -81,8 +95,10 @@ public class Usage.Process : Object {
 
     public string? app_id {
         get {
-            if (!_app_id_checked)
-                _app_id = read_app_id (pid);
+            if (!this._app_id_checked) {
+                this._app_id = read_app_id (pid);
+                this._app_id_checked = true;
+            }
 
             return _app_id;
         }
@@ -119,36 +135,20 @@ public class Usage.Process : Object {
 
     public static string? read_cgroup (Pid pid) {
         string path = "/proc/%u/cgroup".printf ((uint) pid);
-        int flags = Posix.O_RDONLY | StopGap.O_CLOEXEC | Posix.O_NOCTTY;
-
-        int fd = StopGap.openat (StopGap.AT_FDCWD, path, flags);
-
-        if (fd == -1)
-            return null;
 
         try {
-            string? data = null;
-            string[] lines;
-            string? cgroup = null;
-            size_t len;
+            File file = File.new_for_path (path);
 
-            // TODO use MappedFile.from_fd, requires vala 0.46
-            IOChannel ch = new IOChannel.unix_new (fd);
-            ch.set_close_on_unref (true);
+            uint8[] contents;
+            file.load_contents (null, out contents, null);
 
-            var status = ch.read_to_end (out data, out len);
-            if (status != IOStatus.NORMAL)
-                return null;
-
-            lines = data.split ("\n");
+            string line = ((string) contents).split ("\n")[0];
 
             // Only do anything with cgroup v2
-            if (!lines[0].has_prefix ("0::"))
+            if (!line.has_prefix ("0::"))
                 return null;
 
-            cgroup = lines[0][3:lines[0].length];
-
-            return cgroup;
+            return line[3:line.length];
         } catch (Error e) {
             return null;
         }
@@ -190,18 +190,8 @@ public class Usage.Process : Object {
         KeyFile kf = new KeyFile ();
 
         try {
-            string? data = null;
-            size_t len;
-
-            // TODO use MappedFile.from_fd, requires vala 0.46
-            IOChannel ch = new IOChannel.unix_new (fd);
-            ch.set_close_on_unref (true);
-
-            var status = ch.read_to_end (out data, out len);
-            if (status != IOStatus.NORMAL)
-                return null;
-
-            kf.load_from_data (data, len, 0);
+            MappedFile file = new MappedFile.from_fd (fd, false);
+            kf.load_from_data ((string) file.get_contents (), file.get_length (), 0);
         } catch (Error e) {
             return null;
         }

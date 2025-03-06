@@ -1,7 +1,7 @@
 /* app-item.vala
  *
  * Copyright (C) 2018 Red Hat, Inc.
- * Copyright (C) 2023 Markus Göllnitz
+ * Copyright (C) 2023–2024 Markus Göllnitz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,11 +54,13 @@ public class Usage.AppItem : Object {
         }
     }
 
+    private static HashTable<Process, AppItem> app_for_process;
     private static HashTable<string, AppInfo> apps_info;
     private static HashTable<string, AppInfo> appid_map;
     private AppInfo? app_info = null;
 
     public static void init () {
+        app_for_process = new HashTable<Process, AppItem> (int_hash, int_equal);
         apps_info = new HashTable<string, AppInfo> (str_hash, str_equal);
         appid_map = new HashTable<string, AppInfo> (str_hash, str_equal);
 
@@ -68,9 +70,10 @@ public class Usage.AppItem : Object {
             GLib.DesktopAppInfo? dai = info as GLib.DesktopAppInfo;
             string? id = null;
 
-            if (dai != null) {
-                id = dai?.get_string ("X-Flatpak");
-                if (id != null) {
+            id = dai?.get_string ("X-Flatpak");
+            if (id != null) {
+                /* prioritise app infos without nodisplay */
+                if (appid_map[(!) id] == null || !((!) dai).get_nodisplay ()) {
                     appid_map.insert ((!) id, info);
                 }
             }
@@ -156,11 +159,13 @@ public class Usage.AppItem : Object {
         return id;
     }
 
+    public static AppItem? app_item_for_process (Process process) {
+        return app_for_process.@get (process);
+    }
+
     public static AppInfo? app_info_for_process (Process p) {
         AppInfo? info = null;
-        string ?cgroup = null;
-
-        cgroup = Process.read_cgroup (p.pid);
+        string? cgroup = p.cgroup;
 
         /* Waydroid */
         if (cgroup == "/lxc.payload.waydroid") {
@@ -172,25 +177,22 @@ public class Usage.AppItem : Object {
              * See https://systemd.io/DESKTOP_ENVIRONMENTS/
              * and we also have some special cases for GNOME which is not
              * currently compliant to the specification. */
-            string ?systemd_unit = null;
-            string ?appid = null;
+            string? systemd_unit = null;
+            string? appid = null;
             string[] components;
 
-            components = cgroup.split ("/");
+            components = cgroup?.split ("/");
             systemd_unit = components[components.length - 1];
             appid = appid_from_unit (systemd_unit);
             if (appid != null)
-                info = appid_map[appid];
-
-            if (info != null)
-                return info;
+                info = appid_map[(!) appid];
         }
 
-        if (p.cmdline != null)
+        if (info == null && p.cmdline != null)
             info = apps_info[p.cmdline];
 
         if (info == null && p.app_id != null)
-            info = appid_map[p.app_id];
+            info = appid_map[(!) p.app_id];
 
         return info;
     }
@@ -232,6 +234,7 @@ public class Usage.AppItem : Object {
     }
 
     public void insert_process (Process process) {
+        app_for_process.insert (process, this);
         processes.insert (process.pid, process);
         this.notify_property ("running");
     }
@@ -257,9 +260,9 @@ public class Usage.AppItem : Object {
     }
 
     public void remove_processes () {
-        cpu_load = 0;
-        mem_usage = 0;
-        int games = 0;
+        double cpu_load = 0;
+        uint64 mem_usage = 0;
+        bool gamemode = false;
 
         foreach (var process in processes.get_values ()) {
             if (!process.mark_as_updated) {
@@ -267,21 +270,26 @@ public class Usage.AppItem : Object {
             } else {
                 cpu_load += process.cpu_load;
                 mem_usage += process.mem_usage;
+                if (process.gamemode) {
+                    gamemode = true;
+                }
             }
-            if (process.gamemode)
-                games++;
         }
 
-        gamemode = games > 0;
-        cpu_load = cpu_load / get_num_processors ();
+        this.cpu_load = cpu_load;
+        this.mem_usage = mem_usage;
+        this.gamemode = gamemode;
     }
 
     public void remove_process (Process process) {
+        app_for_process.remove (process);
         processes.remove (process.pid);
         this.notify_property ("running");
     }
 
     public void replace_process (Process process) {
+        app_for_process.remove (this.get_process_by_pid (process.pid));
+        app_for_process.insert (process, this);
         processes.replace (process.pid, process);
         this.notify_property ("running");
     }

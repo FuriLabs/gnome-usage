@@ -7,6 +7,10 @@ listview row {
     font-feature-settings: "tnum";
 }
 
+listview.switcher-sidebar > row {
+    padding: 8px;
+}
+
 /* ListView is not supported by .boxed-list, this is needed for using .card */
 listview.card > row:first-child {
     border-radius: 12px 12px 0 0;
@@ -93,13 +97,10 @@ Speedometer {
     background: alpha(@window_fg_color, 0.4);
 }
 
-.row_tag {
-    border-radius: 100%;
-}
-
 /* Storage */
 .row-tag {
     border-radius: 100%;
+    background-color: var(--storage-row-colour);
 }
 
 .used-tag {
@@ -117,4 +118,5 @@ Speedometer {
 .storage-row {
     padding: 0 5px;
     font-feature-settings: "tnum";
+    --storage-row-colour: var(--accent-color);
 }
