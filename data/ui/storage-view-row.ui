@@ -36,7 +36,7 @@
         </child>
 
          <child>
-          <object class="GtkSpinner" id="spinner">
+          <object class="AdwSpinner" id="spinner">
             <property name="visible">False</property>
           </object>
         </child>
@@ -48,6 +48,7 @@
         <child>
           <object class="GtkCheckButton" id="check_button">
             <property name="receives_default">True</property>
+            <property name="visible">False</property>
           </object>
         </child>
 

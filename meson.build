@@ -1,6 +1,6 @@
 project(
   'gnome-usage', ['vala', 'c'],
-  version: '46.0',
+  version: '48.rc',
   license: 'GPL3',
   meson_version: '>= 0.50.0'
 )
@@ -24,9 +24,11 @@ gobject_dep = dependency('gobject-2.0')
 gio_dep = dependency('gio-2.0', version : '>=2.74')
 gio_unix_dep = dependency('gio-unix-2.0')
 gtk_dep = dependency('gtk4', version : '>=4.11.3')
+json_dep = dependency('json-glib-1.0')
 libgtop_dep = dependency('libgtop-2.0', version : '>= 2.34.0')
-libadwaita_dep = dependency('libadwaita-1', version : '>=1.5')
-tracker_dep = dependency('tracker-sparql-3.0')
+libnm_dep = dependency('libnm', version : '>= 1.44.0')
+libadwaita_dep = dependency('libadwaita-1', version : '>=1.6')
+tinysparql_dep = dependency('tinysparql-3.0')
 
 gnome = import('gnome')
 i18n = import('i18n')

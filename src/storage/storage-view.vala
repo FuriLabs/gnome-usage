@@ -19,7 +19,6 @@
  *          Petr Štětka <pstetka@redhat.com>
  */
 
-using Tracker;
 using GTop;
 
 [GtkTemplate (ui = "/org/gnome/Usage/ui/storage-view.ui")]
@@ -47,11 +46,8 @@ public class Usage.StorageView : Usage.View {
     [GtkChild]
     private unowned Gtk.ProgressBar directory_loading_bar;
 
-    [GtkChild]
-    private unowned StorageRowPopover row_popover;
-
-    private Sparql.Connection connection;
-    private TrackerController controller;
+    private Tsparql.SparqlConnection connection;
+    private SparqlController controller;
     private StorageQueryBuilder query_builder;
 
     private StorageViewItem os_item = new StorageViewItem ();
@@ -84,17 +80,31 @@ public class Usage.StorageView : Usage.View {
         ((Gtk.Box) switcher_widget).append (switcher_label);
 
         try {
-            connection = Sparql.Connection.bus_new ("org.freedesktop.Tracker3.Miner.Files", null, null);
+            this.connection = Tsparql.SparqlConnection.bus_new ("org.freedesktop.LocalSearch3", null, null);
         } catch (GLib.Error error) {
             critical ("Failed to connect to Tracker Miner FS: %s", error.message);
         }
 
-        query_builder = new StorageQueryBuilder ();
-        controller = new TrackerController (connection);
+        this.query_builder = new StorageQueryBuilder ();
+        this.controller = new SparqlController (connection);
 
         listbox.init (create_file_row);
         listbox.model_changed.connect ((model) => {
-            graph.model = model;
+            model.items_changed.connect ((position, removed, add) => {
+                if ((model.get_item (0) as StorageViewItem).custom_type == StorageViewType.OS)
+                    return;
+
+                for (int i = 0; i < model.get_n_items (); i++) {
+                    StorageViewItem item = (StorageViewItem) model.get_item (i);
+
+                    if (item.custom_type == StorageViewType.UP_FOLDER || item.size == 0)
+                        continue;
+
+                    item.color = Utils.generate_color (item.get_base_color (), i, model.get_n_items (), true);
+                }
+            });
+
+            this.graph.model = model;
         });
 
         actionbar.refresh_listbox.connect (this.refresh_current_dir);
@@ -121,9 +131,7 @@ public class Usage.StorageView : Usage.View {
             selected_items_stack.push_head ((owned) selected_items);
             clear_selected_items ();
             present_dir.begin (storage_row.item.uri, storage_row.item.dir, cancellable);
-        } else if (storage_row.item.custom_type != StorageViewType.NONE) {
-            row_popover.popup_on_row (storage_row);
-        } else {
+        } else if (storage_row.item.custom_type == StorageViewType.NONE) {
             try {
                 AppInfo.launch_default_for_uri (storage_row.item.uri, null);
             } catch (GLib.Error error) {
@@ -282,6 +290,14 @@ public class Usage.StorageView : Usage.View {
         foreach (var dir in xdg_folders) {
             var file = File.new_for_uri (get_user_special_dir_path (dir));
             var item = StorageViewItem.from_file (file);
+
+            if (item == null) {
+                items_loaded++;
+                if (items_loaded == xdg_folders.length)
+                    is_directory_loading (false);
+                continue;
+            }
+
             item.dir = dir;
 
             controller.get_file_size.begin (item.uri, (obj, res) => {

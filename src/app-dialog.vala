@@ -91,10 +91,10 @@ public class Usage.AppDialog : Adw.Dialog {
 
         AppDialogProperty cpu_property = new AppDialogProperty () {
             name = _("CPU"),
-            @value = "%.1f %%".printf (this.app.cpu_load),
+            @value = "%.1f %%".printf (this.app.cpu_load * 100),
         };
         this.app.notify["cpu-load"].connect (() => {
-            cpu_property.@value = "%.1f %%".printf (this.app.cpu_load);
+            cpu_property.@value = "%.1f %%".printf (this.app.cpu_load * 100);
             cpu_property.notify_property ("value");
         });
         AppDialogProperty memory_property = new AppDialogProperty () {
@@ -121,9 +121,7 @@ public class Usage.AppDialog : Adw.Dialog {
             dialog.response.connect ((dialog, response_type) => {
                 if (response_type == "quit") {
                     this.quit_button.sensitive = false;
-                    this.quit_button.set_child (new Gtk.Spinner () {
-                          spinning = true,
-                    });
+                    this.quit_button.set_child (new Adw.Spinner ());
 
                     this.app.notify["running"].connect (() => {
                         if (!this.app.is_running ()) {

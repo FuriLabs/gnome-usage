@@ -50,7 +50,7 @@ public class Usage.CpuView : View {
                 return item.cpu_load > Settings.get_default ().app_minimum_load;
             },
             load_widget_factory = (item) => {
-                Gtk.Label load_label = new Gtk.Label ("%.1f %%".printf (item.cpu_load));
+                Gtk.Label load_label = new Gtk.Label ("%.1f %%".printf (item.cpu_load * 100));
 
                 load_label.ellipsize = Pango.EllipsizeMode.END;
                 load_label.max_width_chars = 30;
@@ -59,13 +59,10 @@ public class Usage.CpuView : View {
             },
         });
 
-        var spinner = new Gtk.Spinner ();
-        spinner.map.connect (spinner.start);
-        spinner.unmap.connect (spinner.stop);
-        spinner.margin_top = 30;
-        spinner.height_request = 250;
-        spinner.hexpand = true;
-        spinner.halign = Gtk.Align.CENTER;
+        var spinner = new Adw.Spinner () {
+            margin_top = 30,
+            height_request = 250,
+        };
 
         no_process_view = new NoResultsFoundView ();
 
