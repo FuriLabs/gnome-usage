@@ -6,7 +6,7 @@ Files: *
 Copyright: 2017 Red Hat, Inc.
 License: GPL-3+
 
-Files: data/org.gnome.Usage.appdata.xml*
+Files: data/org.gnome.Usage.metainfo.xml*
 Copyright: 2017 Red Hat, Inc.
 License: CC0-1.0
 
