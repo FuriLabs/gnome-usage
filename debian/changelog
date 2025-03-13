@@ -1,8 +1,14 @@
-gnome-usage (48~rc-1) UNRELEASED; urgency=medium
+gnome-usage (48~rc-1) unstable; urgency=medium
 
   * New upstream release
+  * Bump minimum libadwaita
+  * Add Build-Depends: libjson-glib-dev, libnm-dev
+  * Add Depends: vnstat for new Network panel
+  * Update Build-Depends: libtracker-sparql-3.0-dev → libtinysparql-dev
+  * Opt into dpkg build API v1
+  * Bump Standards Version to 4.7.0
 
- -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 06 Mar 2025 09:37:14 -0500
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 13 Mar 2025 15:16:40 -0400
 
 gnome-usage (46.0-1) unstable; urgency=medium
 
