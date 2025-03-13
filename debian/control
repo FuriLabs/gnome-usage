@@ -2,7 +2,9 @@ Source: gnome-usage
 Section: gnome
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Iain Lane <laney@debian.org>, Jeremy Bícha <jbicha@ubuntu.com>, Marco Trevisan (Treviño) <marco@ubuntu.com>
+Uploaders: Iain Lane <laney@debian.org>,
+           Jeremy Bícha <jbicha@ubuntu.com>,
+           Marco Trevisan (Treviño) <marco@ubuntu.com>
 Build-Depends: debhelper-compat (= 13),
                dpkg-build-api (= 1),
                libadwaita-1-dev (>= 1.6),
@@ -22,8 +24,7 @@ Homepage: https://wiki.gnome.org/Apps/Usage
 
 Package: gnome-usage
 Architecture: any
-Depends: ${misc:Depends},
-         ${shlibs:Depends}
+Depends: vnstat, ${misc:Depends}, ${shlibs:Depends}
 Description: simple system monitor app for GNOME
  Usage is an application for GNOME that allows monitoring of system resources
- such as memory, CPU, and disk space.
+ such as CPU, memory, network and disk space.
