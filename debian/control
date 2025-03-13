@@ -9,7 +9,7 @@ Build-Depends: debhelper-compat (= 13),
                libglib2.0-dev (>= 2.74.0),
                libgtk-4-dev (>= 4.11.3),
                libgtop2-dev (>= 2.34.0),
-               libtracker-sparql-3.0-dev,
+               libtinysparql-dev,
                meson (>= 0.50),
                valac
 Standards-Version: 4.6.2
