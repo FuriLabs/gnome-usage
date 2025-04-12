@@ -6,6 +6,7 @@ vala_sources = [
   'cpu-graph.vala',
   'cpu-monitor.vala',
   'cpu-view.vala',
+  'furios-usage.vala',
   'gnome-usage.vala',
   'game-mode.vala',
   'graph.vala',

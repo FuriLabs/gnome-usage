@@ -242,11 +242,22 @@ public class Usage.AppItem : Object {
     public bool is_killable () {
         bool blocked = this.representative_cmdline in Settings.get_default ().get_strv ("unkillable-processes");
         bool by_current_user = this.user?.Uid == Posix.geteuid ();
-        return !blocked && by_current_user;
+        bool is_andromeda_app = this.container == "Andromeda";
+        return (!blocked && (by_current_user || is_andromeda_app));
     }
 
     public void kill (Posix.Signal? sig = Posix.Signal.TERM) {
         if (this.is_killable ()) {
+            if (this.container == "Andromeda") {
+                debug ("Requested to kill Andromeda app: %s", this.display_name);
+                bool success = FuriOS.kill_andromeda_app (this.display_name);
+                if (!success) {
+                    warning ("Failed to kill Andromeda app: %s", this.display_name);
+                }
+
+                return;
+            }
+
             foreach (var process in processes.get_values ()) {
                 debug ("Terminating %d", (int) process.pid);
                 Posix.kill (process.pid, sig ?? Posix.Signal.TERM);
