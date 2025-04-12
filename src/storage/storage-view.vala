@@ -114,7 +114,7 @@ public class Usage.StorageView : Usage.View {
         graph.min_percentage_shown_files = MIN_PERCENTAGE_SHOWN_FILES;
 
         setup_header_label ();
-        setup_mount_sizes ();
+        setup_mount_sizes_furios ();
         populate_view.begin ();
     }
 
@@ -225,6 +225,38 @@ public class Usage.StorageView : Usage.View {
 
     private void setup_header_label () {
         header_label.label = Environment.get_host_name ();
+    }
+
+    public void setup_mount_sizes_furios() {
+        uint64 total_size;
+        uint64 total_used_size;
+        uint64 total_free_size;
+        FuriOS.get_root_filesystem_usage (out total_size, out total_used_size, out total_free_size);
+
+        os_item.name = _("Operating System");
+        os_item.size = total_used_size;
+        os_item.custom_type = StorageViewType.OS;
+
+        os_item.percentage = os_item.size * 100 / (double) total_used_size;
+        this.total_size = total_size;
+        this.total_used_size = total_used_size;
+        this.total_free_size = total_free_size;
+
+        var total_used_percentage = ((double) total_used_size / total_size) * 100;
+        var total_free_percentage = ((double) total_free_size / total_size) * 100;
+        total_used_percentage = Math.round (total_used_percentage);
+        total_free_percentage = Math.round (total_free_percentage);
+
+        used_row.size_label.label = Utils.format_size_values (total_used_size) + " (%d%%)".printf ((int) total_used_percentage);
+        used_row.tag.add_css_class ("used-tag");
+        available_row.size_label.label = Utils.format_size_values (total_free_size) + " (%d%%)".printf ((int) total_free_percentage);
+        available_row.tag.add_css_class ("available-tag");
+
+        ulong total_free_size_most_significant;
+        string total_free_size_formatted = Utils.format_size_values (total_free_size, out total_free_size_most_significant);
+        switcher_level.max_value = total_size;
+        switcher_level.@value = total_used_size;
+        switcher_label.label = GLib.ngettext ("%s available", "%s available", total_free_size_most_significant).printf (total_free_size_formatted);
     }
 
     private void setup_mount_sizes () {

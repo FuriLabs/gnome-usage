@@ -18,6 +18,8 @@
  * Authors: Bardia Moshiri <bardia@furilabs.com>
  */
 
+using GTop;
+
 [DBus (name = "io.furios.Andromeda.SessionManager")]
 public interface Usage.AndromedaSessionManager : Object {
     public abstract string NameToPackageName (string app_name) throws IOError, DBusError;
@@ -31,6 +33,15 @@ public interface Usage.AndromedaContainerManager : Object {
 public class Usage.FuriOS : Object {
     private static AndromedaSessionManager? session_manager;
     private static AndromedaContainerManager? container_manager;
+
+    public static void get_root_filesystem_usage(out uint64 total_size, out uint64 used_size, out uint64 free_size) {
+        FsUsage root_fs;
+        GTop.get_fsusage (out root_fs, "/");
+
+        total_size = root_fs.blocks * root_fs.block_size;
+        free_size = root_fs.bfree * root_fs.block_size;
+        used_size = total_size - free_size;
+    }
 
     private static bool init_dbus_connections () {
         try {
