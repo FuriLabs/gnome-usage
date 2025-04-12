@@ -75,6 +75,7 @@
                           <object class="UsageStackList" id="listbox">
                             <property name="selection-mode">none</property>
                             <property name="vexpand">True</property>
+                            <property name="visible">False</property>
                             <signal name="row-activated" handler="on_row_activated" />
                             <style>
                               <class name="storage-list" />
