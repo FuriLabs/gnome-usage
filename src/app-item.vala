@@ -47,8 +47,8 @@ public class Usage.AppItem : Object {
     }
     public virtual string? container {
         get {
-            if ((this.app_info as DesktopAppInfo)?.get_categories () == "X-WayDroid-App;") {
-                return "Waydroid";
+            if ((this.app_info as DesktopAppInfo)?.get_categories () == "X-Andromeda-App;") {
+                return "Andromeda";
             }
             return null;
         }
@@ -84,10 +84,10 @@ public class Usage.AppItem : Object {
                 if (id?.has_suffix (".desktop") ?? false) {
                     id = id?.substring (0, id?.length - 8);
                 }
-                if (dai?.get_categories () == "X-WayDroid-App;") {
-                    if (id == "Waydroid") {
-                        apps_info.insert ("waydroid", info);
-                        id = "system_waydroid";
+                if (dai?.get_categories () == "X-Andromeda-App;") {
+                    if (id == "Andromeda") {
+                        apps_info.insert ("andromeda", info);
+                        id = "system_andromeda";
                     } else {
                         id = id?.substring (9);
                     }
@@ -167,9 +167,9 @@ public class Usage.AppItem : Object {
         AppInfo? info = null;
         string? cgroup = p.cgroup;
 
-        /* Waydroid */
-        if (cgroup == "/lxc.payload.waydroid") {
-            return appid_map[p.cmdline] ?? appid_map["system_waydroid"];
+        /* Andromeda */
+        if (cgroup == "/lxc.payload.andromeda") {
+            return appid_map[p.cmdline] ?? appid_map["system_andromeda"];
         }
 
         if (cgroup != null) {
@@ -325,8 +325,8 @@ public class Usage.AppItem : Object {
             commandline = commandline.substring (index);
         }
 
-        if (commandline.contains ("waydroid app launch ")) {
-            commandline = commandline.substring (20);
+        if (commandline.contains ("andromeda app launch ")) {
+            commandline = commandline.substring (21);
         }
 
         // TODO: unify this with the logic in get_full_process_cmd

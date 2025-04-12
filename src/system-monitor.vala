@@ -229,7 +229,7 @@ public class Usage.SystemMonitor : Object {
 
         return info?.get_id () ?? (
             group_system_apps ? (
-                p.cgroup == "/lxc.payload.waydroid" ? "system_waydroid" : "system"
+                p.cgroup == "/lxc.payload.andromeda" ? "system_andromeda" : "system"
             ) : p.cmdline
         );
     }

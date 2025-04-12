@@ -72,7 +72,7 @@ public class Usage.ProcessRowItem : Object {
                 return null;
             }
             switch ((!) container) {
-                case "Waydroid":
+                case "Andromeda":
                     return new GLib.ThemedIcon ("android-app-symbolic");
                 default:
                     return null;
