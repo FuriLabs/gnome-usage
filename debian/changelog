@@ -1,8 +1,8 @@
-gnome-usage (48.0-1) UNRELEASED; urgency=medium
+gnome-usage (48.0-1) unstable; urgency=medium
 
   * New upstream release
 
- -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 17 Nov 2025 19:14:53 -0500
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 17 Nov 2025 19:16:39 -0500
 
 gnome-usage (48~rc-1) unstable; urgency=medium
 
