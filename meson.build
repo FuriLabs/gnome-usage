@@ -1,6 +1,6 @@
 project(
   'gnome-usage', ['vala', 'c'],
-  version: '48.rc',
+  version: '48.0',
   license: 'GPL3',
   meson_version: '>= 0.50.0'
 )
@@ -54,7 +54,7 @@ else
 endif
 
 if profile != ''
-  application_id = '@0@@1@'.format(base_id, profile)
+  application_id = '@0@.@1@'.format(base_id, profile)
 else
   application_id = base_id
 endif

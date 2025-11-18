@@ -13,40 +13,18 @@ listview.switcher-sidebar > row {
 
 /* ListView is not supported by .boxed-list, this is needed for using .card */
 listview.card > row:first-child {
-    border-radius: 12px 12px 0 0;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 listview.card > row:last-child {
-    border-radius: 0 0 12px 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 rg-graph.big {
     background-size: 57px 57px;
     background-image: repeating-linear-gradient(0deg, @borders, @borders 1px, transparent 1px, transparent 57px);
-}
-
-rg-graph.line {
-    color: rgba(74,144,217,1);
-}
-
-rg-graph.stacked {
-    color: rgba(74,144,217,0.325);
-}
-
-rg-graph.line_orange {
-    color: rgba(255,153,0,1);
-}
-
-rg-graph.stacked_orange {
-    color: rgba(255,153,0,0.353);
-}
-
-rg-graph.line_max {
-    color: rgba(238,34,34,1);
-}
-
-rg-graph.stacked_max {
-    color: rgba(238,34,34,0.227);
 }
 
 StorageGraph {
